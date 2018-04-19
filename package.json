@@ -4,6 +4,7 @@
   "description": "Firebase web app for creating and hosting Jeopardy-like games",
   "main": "./app/index.jsx",
   "dependencies": {
+    "@firebase/firestore": "^0.3.7",
     "firebase": "^4.12.1",
     "npm": "^5.8.0",
     "react": "^16.2.0",
@@ -22,7 +23,10 @@
     "webpack-merge": "^4.1.2"
   },
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
+    "build-dev": "webpack --config webpack.dev.js",
+    "build-prod": "webpack --config webpack.prod.js",
+    "build-watch": "npm run build-dev -- -w",
+    "seed": "node script/seed.js",
     "start-dev": "webpack-dev-server --config webpack.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
