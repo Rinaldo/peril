@@ -1,4 +1,4 @@
-{
+const game = JSON.parse(`{
   "name": "Stackpardy",
   "description": "Fullstack Academy's Jeopardy game",
   "isPublic": true,
@@ -52,7 +52,7 @@
         },
         "4": {
           "prompt": "The way to have an HTML file include a CSS stylesheet, similar to the script tag.",
-          "response": "What is \"link\""
+          "response": "What is \\"link\\""
         }
       }
     },
@@ -61,11 +61,11 @@
       "questions": {
         "0": {
           "prompt": "This command pops up a window in your browser with whatever message you pass to it.",
-          "response": "What is \"alert\"?"
+          "response": "What is \\"alert\\"?"
         },
         "1": {
           "prompt": "The most helpful word to help JavaScript-learners, this stops all execution of JavaScript and lets you inspect the current state.",
-          "response": "What is \"debugger\""
+          "response": "What is \\"debugger\\""
         },
         "2": {
           "prompt": "The name of a function given to another function, so that the second function knows what to do when it's done with it's current work",
@@ -157,4 +157,63 @@
       }
     }
   }
+}`)
+
+const incompleteGame = JSON.parse(`{
+  "name": "Stackpardy",
+  "description": "Fullstack Academy's Jeopardy game",
+  "isPublic": true,
+  "multiplier": 200,
+  "height": 5,
+  "width": 6,
+  "categories": {
+    "1": {
+      "name": "CSS",
+      "questions": {
+        "2": {
+          "prompt": "Released by Twitter, this is the most popular HTML/CSS/JS framework for developing responsive websites.",
+          "response": "What is Bootstrap?"
+        }
+      }
+    },
+    "2": {
+      "name": "JavaScript",
+      "questions": {
+        "3": {
+          "prompt": "The five basic primitive types in JavaScript.",
+          "response": "What are null, undefined, Number, String, Boolean?"
+        }
+      }
+    },
+    "4": {
+      "name": "Fullstack Academy",
+      "questions": {
+        "0": {
+          "prompt": "The Instructor who runs Foundations and sends you your daily Foundations reminders.",
+          "response": "Who is Scott D'alessandro"
+        },
+        "1": {
+          "prompt": "The Fullstack Logo represents both upward ascenscion, and one other less metaphorical symbol.",
+          "response": "What is an F?"
+        }
+      }
+    }
+  }
+}`)
+
+
+const formatGame = game => {
+  let cells = Array(game.height).fill(null).map(_ => Array(game.width).fill(null))
+  let headers = Array(game.width).fill(null)
+  for (let i = 0; i < game.width; i++) {
+    if (game.categories[i]) {
+      headers[i] = game.categories[i].name
+    }
+    for (let j = 0; j < game.height; j++) {
+      if (game.categories[i] && game.categories[i].questions[j]) {
+        cells[j][i] = game.categories[i].questions[j]
+      }
+    }
+  }
+  return { headers, cells }
 }

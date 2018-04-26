@@ -40,8 +40,8 @@ class Questions extends Component {
                   <Item.Header>Response</Item.Header>
                   <Item.Description>{question.response}</Item.Description>
                   <Item.Extra>
-                    {Object.keys(question.tags).map(tag => (
-                      <Label>{tag}</Label>
+                    {question.tags && Object.keys(question.tags).map((tag, idx) => (
+                      <Label key={idx}>{tag}</Label>
                     ))}
                   </Item.Extra>
                 </Item.Content>
