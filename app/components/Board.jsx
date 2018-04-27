@@ -1,4 +1,8 @@
-const game = JSON.parse(`{
+import React, { Component } from 'react'
+import { Table, Item } from 'semantic-ui-react'
+import { db } from '../firebase'
+
+const completeGame = JSON.parse(`{
   "name": "Stackpardy",
   "description": "Fullstack Academy's Jeopardy game",
   "isPublic": true,
@@ -203,17 +207,118 @@ const incompleteGame = JSON.parse(`{
 
 
 const formatGame = game => {
-  let cells = Array(game.height).fill(null).map(_ => Array(game.width).fill(null))
-  let headers = Array(game.width).fill(null)
+  const formatted = {...game}
+  delete formatted.categories
+  formatted.rows = Array(game.height).fill(null).map(_ => Array(game.width).fill(null))
+  formatted.headers = Array(game.width).fill(null)
   for (let i = 0; i < game.width; i++) {
     if (game.categories[i]) {
-      headers[i] = game.categories[i].name
+      formatted.headers[i] = game.categories[i].name
     }
     for (let j = 0; j < game.height; j++) {
       if (game.categories[i] && game.categories[i].questions[j]) {
-        cells[j][i] = game.categories[i].questions[j]
+        formatted.rows[j][i] = game.categories[i].questions[j]
       }
     }
   }
-  return { headers, cells }
+  return formatted
 }
+
+class Board extends Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      game: formatGame(completeGame),
+      init: false,
+      selected: null,
+      selectedIsLocked: false,
+    }
+    this.getCell = this.getCell.bind(this)
+    this.selectQuestion = this.selectQuestion.bind(this)
+    this.lockSelected = this.lockSelected.bind(this)
+    this.clearQuestion = this.clearQuestion.bind(this)
+  }
+
+  componentDidMount() {
+    // db.collection('questions').where('isPublic', '==', true)
+    //   .onSnapshot(querySnapshot => {
+    //       const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+    //       console.log(docsData)
+    //       this.setState({ questions: docsData, init: false })
+    //   })
+    //this.setState({ game: formatGame(completeGame), init: false })
+  }
+
+  getCell(event) {
+    return this.state.game.rows[event.target.getAttribute('row')][event.target.getAttribute('col')]
+  }
+  selectQuestion(event, force) {
+    const clickedCell = this.getCell(event)
+    if (!this.state.selectedIsLocked || force) this.setState({ selected: clickedCell })
+  }
+  lockSelected(event) {
+    const clickedCell = this.getCell(event)
+    if (clickedCell === this.state.selected && this.state.selectedIsLocked) {
+      this.setState({ selectedIsLocked: false })
+    } else {
+      this.selectQuestion(event, true)
+      this.setState({ selectedIsLocked: true })
+    }
+  }
+  clearQuestion() {
+    if (!this.state.selectedIsLocked) this.setState({ selected: null })
+  }
+
+  render() {
+    const game = this.state.game
+    const selected = this.state.selected
+    return (
+      <div>
+      <Table fixed unstackable padded size="large">
+        <Table.Header>
+          <Table.Row textAlign="center">
+            {game.headers.map((header, headerIndex) => (
+              <Table.HeaderCell key={`row-${headerIndex}`}>{header}</Table.HeaderCell>
+            ))}
+          </Table.Row>
+        </Table.Header>
+        <Table.Body onMouseLeave={this.clearQuestion}>
+          {game.rows.map((row, rowIndex) => (
+            <Table.Row key={`row-${rowIndex}`} textAlign="center">
+              {row.map((cell, colIndex) => (
+                <Table.Cell
+                  key={`cell-${rowIndex}:${colIndex}`}
+                  row={rowIndex}
+                  col={colIndex}
+                  className={(cell === this.state.selected && this.state.selectedIsLocked) ? 'selected-cell locked-selected-cell' : 'selected-cell'}
+                  onMouseEnter={this.selectQuestion}
+                  onClick={this.lockSelected}>
+                  {cell && (rowIndex + 1) * game.multiplier}
+                </Table.Cell>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+      {/* copied from Questions, should refactor into component */}
+      {selected && <Item>
+        <Item.Content verticalAlign='middle'>
+          <Item.Header>Prompt</Item.Header>
+          <Item.Description>{selected.prompt}</Item.Description>
+          <Item.Header>Response</Item.Header>
+          <Item.Description>{selected.response}</Item.Description>
+          <Item.Extra>
+            {selected.tags && Object.keys(selected.tags).map(tag => (
+              <Label key={tag}>{tag}</Label>
+            ))}
+          </Item.Extra>
+        </Item.Content>
+      </Item>}
+      </div>
+    )
+  }
+
+}
+
+export default Board

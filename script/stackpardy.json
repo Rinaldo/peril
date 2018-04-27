@@ -23,7 +23,8 @@
         },
         "3": {
           "prompt": "A weird looking type of tag, it's long form is bang, dash, dash",
-          "response": "What are HTML comments?"
+          "response": "What are HTML comments?",
+          "double": true
         },
         "4": {
           "prompt": "The tag sounds like someone advanced in years, but it's real purpose is to create a list in your document.",
@@ -69,7 +70,8 @@
         },
         "2": {
           "prompt": "The name of a function given to another function, so that the second function knows what to do when it's done with it's current work",
-          "response": "What is a callback function, continuations, futures"
+          "response": "What is a callback function, continuations, futures",
+          "double": true,
         },
         "3": {
           "prompt": "The five basic primitive types in JavaScript.",
@@ -152,7 +154,8 @@
         },
         "4": {
           "prompt": "When in Poland 7 28 + 5 / 1 +",
-          "response": "What is 8?"
+          "response": "What is 8?",
+          "double": true
         }
       }
     }
