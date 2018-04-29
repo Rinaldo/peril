@@ -6,14 +6,17 @@
 }
 
 
-.selected-cell:hover {
+.selectable-cell:hover {
   background-color: rgba(0, 0, 0, .05);
 }
-.locked-selected-cell {
+.locked-selectable-cell {
   background-color: rgba(0, 0, 0, 0.2);
 }
-.locked-selected-cell:hover {
+.locked-selectable-cell:hover {
   background-color: rgba(0, 0, 0, 0.2);
+}
+.empty-cell {
+  color: rgba(0, 0, 0, .1);
 }
 
 

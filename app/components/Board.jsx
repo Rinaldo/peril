@@ -229,14 +229,15 @@ class Board extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      game: formatGame(completeGame),
+      game: formatGame(incompleteGame),
       init: false,
-      selected: null,
+      selectedRow: null,
+      selectedCol: null,
       selectedIsLocked: false,
     }
     this.getCell = this.getCell.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
-    this.lockSelected = this.lockSelected.bind(this)
+    this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
   }
 
@@ -251,15 +252,15 @@ class Board extends Component {
   }
 
   getCell(event) {
-    return this.state.game.rows[event.target.getAttribute('row')][event.target.getAttribute('col')]
+    return [+event.target.getAttribute('row'), +event.target.getAttribute('col')]
   }
   selectQuestion(event, force) {
-    const clickedCell = this.getCell(event)
-    if (!this.state.selectedIsLocked || force) this.setState({ selected: clickedCell })
+    const [selectedRow, selectedCol] = this.getCell(event)
+    if (!this.state.selectedIsLocked || force) this.setState({ selectedRow, selectedCol })
   }
-  lockSelected(event) {
-    const clickedCell = this.getCell(event)
-    if (clickedCell === this.state.selected && this.state.selectedIsLocked) {
+  toggleLock(event) {
+    const [currRow, currCol] = this.getCell(event)
+    if (currRow === this.state.selectedRow && currCol === this.state.selectedCol && this.state.selectedIsLocked) {
       this.setState({ selectedIsLocked: false })
     } else {
       this.selectQuestion(event, true)
@@ -267,12 +268,14 @@ class Board extends Component {
     }
   }
   clearQuestion() {
-    if (!this.state.selectedIsLocked) this.setState({ selected: null })
+    if (!this.state.selectedIsLocked) this.setState({ selectedRow: null, selectedCol: null })
   }
 
   render() {
     const game = this.state.game
-    const selected = this.state.selected
+    const row = this.state.selectedRow
+    const col = this.state.selectedCol
+    const selected = row !== null && col !== null ? this.state.game.rows[row][col] : null
     return (
       <div>
       <Table fixed unstackable padded size="large">
@@ -291,10 +294,15 @@ class Board extends Component {
                   key={`cell-${rowIndex}:${colIndex}`}
                   row={rowIndex}
                   col={colIndex}
-                  className={(cell === this.state.selected && this.state.selectedIsLocked) ? 'selected-cell locked-selected-cell' : 'selected-cell'}
+                  className={
+                    (rowIndex === this.state.selectedRow &&
+                      colIndex === this.state.selectedCol &&
+                      this.state.selectedIsLocked) ? 'selectable-cell locked-selectable-cell'
+                      : !cell ? 'selectable-cell empty-cell'
+                      : 'selectable-cell'}
                   onMouseEnter={this.selectQuestion}
-                  onClick={this.lockSelected}>
-                  {cell && (rowIndex + 1) * game.multiplier}
+                  onClick={this.toggleLock}>
+                  {(rowIndex + 1) * game.multiplier}
                 </Table.Cell>
               ))}
             </Table.Row>
