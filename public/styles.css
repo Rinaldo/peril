@@ -21,3 +21,14 @@
 
 
 /* background: rgba(0,0,0,.05); */
+
+.game-creation {
+  display: flex;
+}
+.board {
+  flex: 2 1 0;
+}
+.questions {
+  flex: 1 1 0;
+  min-width: 300px;
+}

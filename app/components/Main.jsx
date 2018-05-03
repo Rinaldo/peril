@@ -1,17 +1,14 @@
 import React, { Component } from 'react'
 
-import Questions from './Questions'
-import QuestionInput from './QuestionInput'
-import Board from './Board'
+import GameCreation from './GameCreation'
+
 
 class Main extends Component {
 
   render() {
     return (
       <div>
-        {/* <Questions />
-        <QuestionInput /> */}
-        <Board />
+        <GameCreation />
       </div>
     )
   }

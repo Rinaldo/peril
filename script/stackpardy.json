@@ -19,7 +19,7 @@
         },
         "2": {
           "prompt": "This property of HTML elements allows to have other elements next to them, otherwise it's only above or below.",
-          "response": "What is display (block vs inline)"
+          "response": "What is display (block vs inline)?"
         },
         "3": {
           "prompt": "A weird looking type of tag, it's long form is bang, dash, dash",
@@ -53,7 +53,7 @@
         },
         "4": {
           "prompt": "The way to have an HTML file include a CSS stylesheet, similar to the script tag.",
-          "response": "What is \"link\""
+          "response": "What is \"link\"?"
         }
       }
     },
@@ -66,12 +66,12 @@
         },
         "1": {
           "prompt": "The most helpful word to help JavaScript-learners, this stops all execution of JavaScript and lets you inspect the current state.",
-          "response": "What is \"debugger\""
+          "response": "What is \"debugger\"?"
         },
         "2": {
           "prompt": "The name of a function given to another function, so that the second function knows what to do when it's done with it's current work",
-          "response": "What is a callback function, continuations, futures",
-          "double": true,
+          "response": "What is a callback function, continuations, futures?",
+          "double": true
         },
         "3": {
           "prompt": "The five basic primitive types in JavaScript.",
@@ -79,7 +79,7 @@
         },
         "4": {
           "prompt": "Considered a design flaw in the JS language, this problem manifests itself when you compare objects of two different types in JavaScript.",
-          "response": "What is double equal versus triple equal? (Type conversion.)"
+          "response": "What is double equal versus triple equal? (Type conversion.)?"
         }
       }
     },
@@ -96,11 +96,11 @@
         },
         "2": {
           "prompt": "The underlying technology beneath both Node and the Chrome browser, considered the fastest JavaScript engine.",
-          "response": "Chrome's V8 Engine"
+          "response": "What is Chrome's V8 Engine?"
         },
         "3": {
           "prompt": "This technology was considered by many to launch JavaScript from browser decoration to a real application language.",
-          "response": "What is AJAX? (Gmail)"
+          "response": "What is AJAX? (Gmail)?"
         },
         "4": {
           "prompt": "JavaScript is based on this language, not to be confused with a skin disorder.",
@@ -113,7 +113,7 @@
       "questions": {
         "0": {
           "prompt": "The Instructor who runs Foundations and sends you your daily Foundations reminders.",
-          "response": "Who is Scott D'alessandro"
+          "response": "Who is Scott D'alessandro?"
         },
         "1": {
           "prompt": "The Fullstack Logo represents both upward ascenscion, and one other less metaphorical symbol.",
@@ -125,7 +125,7 @@
         },
         "3": {
           "prompt": "The number of hackathons won by previous Fullstack Academy students.",
-          "response": "What is 15."
+          "response": "What is 15?"
         },
         "4": {
           "prompt": "The three major sections of the entire 21-week Fullstack Course.",
@@ -146,7 +146,7 @@
         },
         "2": {
           "prompt": "That feeling in relationships when even after leaving, you can still remember all the things you defined together.",
-          "response": "Closure"
+          "response": "What is closure?"
         },
         "3": {
           "prompt": "When a function calls itself, it's often just trying to solve the same problem, but smaller.",

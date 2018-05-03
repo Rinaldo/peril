@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Table, Item } from 'semantic-ui-react'
+import { Table, Segment, Item } from 'semantic-ui-react'
 import { db } from '../firebase'
+
+import Question from './Question'
 
 const completeGame = JSON.parse(`{
   "name": "Stackpardy",
@@ -229,7 +231,7 @@ class Board extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      game: formatGame(incompleteGame),
+      game: formatGame(completeGame),
       init: false,
       selectedRow: null,
       selectedCol: null,
@@ -277,8 +279,8 @@ class Board extends Component {
     const col = this.state.selectedCol
     const selected = row !== null && col !== null ? this.state.game.rows[row][col] : null
     return (
-      <div>
-      <Table fixed unstackable padded size="large">
+      <div className="board">
+      <Table fixed unstackable padded size="large" attached="top">
         <Table.Header>
           <Table.Row textAlign="center">
             {game.headers.map((header, headerIndex) => (
@@ -309,24 +311,12 @@ class Board extends Component {
           ))}
         </Table.Body>
       </Table>
-      {/* copied from Questions, should refactor into component */}
-      {selected && <Item>
-        <Item.Content verticalAlign='middle'>
-          <Item.Header>Prompt</Item.Header>
-          <Item.Description>{selected.prompt}</Item.Description>
-          <Item.Header>Response</Item.Header>
-          <Item.Description>{selected.response}</Item.Description>
-          <Item.Extra>
-            {selected.tags && Object.keys(selected.tags).map(tag => (
-              <Label key={tag}>{tag}</Label>
-            ))}
-          </Item.Extra>
-        </Item.Content>
-      </Item>}
+      <Segment attached="bottom">
+      {selected ? <Item.Group><Question question={selected} /></Item.Group> : 'Hover over the board to view questions. Click a question to lock the selection.'}
+      </Segment>
       </div>
     )
   }
-
 }
 
 export default Board

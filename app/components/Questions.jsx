@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Item, Menu, Segment, Input, Loader, Label } from 'semantic-ui-react'
-
+import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
 import { db } from '../firebase'
+
+import Question from './Question'
 
 class Questions extends Component {
 
@@ -23,29 +24,18 @@ class Questions extends Component {
 
   render() {
     return (
-      <div>
-        <Menu attached='top'>
-          <Menu.Item name='My Questions' />
-          <Menu.Item position='right'>
-            <Input transparent icon={{ name: 'search', link: true }} placeholder='Search questions...' />
-          </Menu.Item>
+      <div className="questions">
+        <Menu attached="top" widths={2}>
+          <Menu.Item name="My Questions" />
+          <Menu.Item name="Top Questions" />
         </Menu>
-        <Segment attached='bottom'>
+        <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
+        <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Categories..." />
+        </Segment>
+        <Segment attached="bottom">
           {!this.state.init ? (<Item.Group divided>
             {this.state.questions.map(question => (
-              <Item key={question.id}>
-                <Item.Content verticalAlign='middle'>
-                  <Item.Header>Prompt</Item.Header>
-                  <Item.Description>{question.prompt}</Item.Description>
-                  <Item.Header>Response</Item.Header>
-                  <Item.Description>{question.response}</Item.Description>
-                  <Item.Extra>
-                    {question.tags && Object.keys(question.tags).map(tag => (
-                      <Label key={tag}>{tag}</Label>
-                    ))}
-                  </Item.Extra>
-                </Item.Content>
-              </Item>
+              <Question key={question.id} question={question} />
             ))}
           </Item.Group>)
           : <Loader />
