@@ -32,7 +32,7 @@ class Questions extends Component {
         <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
         <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Categories..." />
         </Segment>
-        <Segment attached="bottom">
+        <Segment attached="bottom" style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
           {!this.state.init ? (<Item.Group divided>
             {this.state.questions.map(question => (
               <Question key={question.id} question={question} />
