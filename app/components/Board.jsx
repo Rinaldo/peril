@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Table, Segment, Item } from 'semantic-ui-react'
 import { db } from '../firebase'
+import { DropTarget } from 'react-dnd'
+import { ItemTypes } from '../utils'
 
 import Question from './Question'
 
@@ -226,6 +228,19 @@ const formatGame = game => {
   return formatted
 }
 
+const cellTarget = {
+  drop(props, monitor) {
+    console.log(monitor.getItem())
+  }
+};
+
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+  };
+}
+
 class Board extends Component {
 
   constructor(props) {
@@ -241,16 +256,6 @@ class Board extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-  }
-
-  componentDidMount() {
-    // db.collection('questions').where('isPublic', '==', true)
-    //   .onSnapshot(querySnapshot => {
-    //       const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-    //       console.log(docsData)
-    //       this.setState({ questions: docsData, init: false })
-    //   })
-    //this.setState({ game: formatGame(completeGame), init: false })
   }
 
   getCell(event) {
@@ -278,7 +283,10 @@ class Board extends Component {
     const row = this.state.selectedRow
     const col = this.state.selectedCol
     const selected = row !== null && col !== null ? this.state.game.rows[row][col] : null
-    return (
+
+    const connectDropTarget = this.props.connectDropTarget
+
+    return connectDropTarget(
       <div className="board">
       <Table fixed unstackable padded size="large" attached="top">
         <Table.Header>
@@ -319,4 +327,4 @@ class Board extends Component {
   }
 }
 
-export default Board
+export default DropTarget(ItemTypes.QUESTION, cellTarget, collect)(Board)

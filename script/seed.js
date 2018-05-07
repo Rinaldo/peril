@@ -47,7 +47,7 @@ const addQuestions = (user, name) => {
         prompt: question.prompt,
         response: question.response,
         author: {
-          name: name,
+          username: name,
           uid: user.uid,
         }
       }
