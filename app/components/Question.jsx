@@ -6,18 +6,13 @@ import { ItemTypes } from '../utils'
 
 const questionSource = {
   beginDrag(props) {
-    console.log('dragging')
     return props.question
-  },
-  endDrag() {
-    console.log('ending drag')
   }
-};
+}
 
-function collect(connect, monitor) {
+function collect(connect) {
   return {
     connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
   }
 }
 
@@ -38,7 +33,7 @@ const Question = ({ question }) => {
               <Label key={tag}>{tag}</Label>
             ))}
           </Item.Extra>
-          <Item.Extra>By {question.author && question.author.name}</Item.Extra>
+          <Item.Extra>By {question.author && question.author.username}</Item.Extra>
         </Item.Content>
       </Item>
   )
@@ -55,4 +50,4 @@ const DraggableQuestion = props => {
 }
 
 
-export default DragSource(ItemTypes.QUESTION, questionSource, collect)(DraggableQuestion)
+export default DragSource(ItemTypes.QUESTION_FROM_LIST, questionSource, collect)(DraggableQuestion)

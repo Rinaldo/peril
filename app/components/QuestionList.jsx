@@ -16,8 +16,8 @@ class Questions extends Component {
   componentDidMount() {
     db.collection('questions').where('isPublic', '==', true)
       .onSnapshot(querySnapshot => {
-          const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-          console.log(docsData)
+          const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), questionId: doc.id }))
+          // console.log(docsData)
           this.setState({ questions: docsData, init: false })
       })
   }
@@ -35,7 +35,7 @@ class Questions extends Component {
         <Segment attached="bottom" style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
           {!this.state.init ? (<Item.Group divided>
             {this.state.questions.map(question => (
-              <Question key={question.id} question={question} />
+              <Question key={question.questionId} question={question} />
             ))}
           </Item.Group>)
           : <Loader />

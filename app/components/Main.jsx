@@ -11,24 +11,24 @@ class Main extends Component {
     super(props)
     this.state = { user: null }
     // this.login = this.login.bind(this)
-    this.logout = this.logout.bind(this)
+    // this.logout = this.logout.bind(this)
   }
 
-  componentDidMount() {
-    auth.onAuthStateChanged((user) => {
-      console.log('auth state change in main')
-      if (user) {
-        this.setState({ user })
-      }
-    })
-  }
+  // componentDidMount() {
+  //   auth.onAuthStateChanged((user) => {
+  //     console.log('auth state change in main')
+  //     if (user) {
+  //       this.setState({ user })
+  //     }
+  //   })
+  // }
 
-  logout() {
-    auth.signOut()
-    .then(() => {
-      this.setState({ user: null })
-    })
-  }
+  // logout() {
+  //   auth.signOut()
+  //   .then(() => {
+  //     this.setState({ user: null })
+  //   })
+  // }
   // login() {
   //   console.log('logging in...')
   //   //returns an object containing the user object along with other info
@@ -61,12 +61,12 @@ class Main extends Component {
     // console.log('user on state:', this.state.user)
     return (
       <div className="main">
-        <h1>Auth Test</h1>
+        {/* <h1>Auth Test</h1>
         {this.state.user ?
           <button onClick={this.logout}>Log Out</button>
           :
           <LoginForm />
-        }
+        } */}
         <GameCreation />
       </div>
     )
