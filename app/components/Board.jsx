@@ -2,6 +2,7 @@ import React from 'react'
 import { Table } from 'semantic-ui-react'
 
 import BoardCell from './BoardCell'
+import HeaderCell from './HeaderCell'
 
 /* eslint-disable react/no-array-index-key */
 const Board = ({ clearQuestion, game, ...propsToPass }) => {
@@ -11,7 +12,13 @@ const Board = ({ clearQuestion, game, ...propsToPass }) => {
         <Table.Header>
           <Table.Row textAlign="center">
             {game.headers.map((header, headerIndex) => (
-              <Table.HeaderCell key={`row-${headerIndex}`}>{header}</Table.HeaderCell>
+              <Table.HeaderCell style={{ padding: '0px' }} key={`row-${headerIndex}`}>
+                <HeaderCell
+                  header={header}
+                  index={headerIndex}
+                  {...propsToPass}
+                />
+              </Table.HeaderCell>
             ))}
           </Table.Row>
         </Table.Header>
@@ -19,10 +26,7 @@ const Board = ({ clearQuestion, game, ...propsToPass }) => {
           {game.rows.map((row, rowIndex) => (
             <Table.Row key={`row-${rowIndex}`} textAlign="center">
               {row.map((cell, colIndex) => (
-                <Table.Cell
-                  style={{ padding: '0px' }}
-                  key={`cell-${rowIndex}:${colIndex}`}
-                >
+                <Table.Cell style={{ padding: '0px' }} key={`cell-${rowIndex}:${colIndex}`}>
                   <BoardCell
                     cell={cell}
                     multiplier={game.multiplier}

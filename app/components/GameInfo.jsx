@@ -24,6 +24,7 @@ class GameInfo extends Component {
     this.addQuestionToGame = this.addQuestionToGame.bind(this)
     this.swapQuestions = this.swapQuestions.bind(this)
     this.writeQuestion = this.writeQuestion.bind(this)
+    this.setHeader = this.setHeader.bind(this)
   }
 
   componentDidMount() {
@@ -64,6 +65,8 @@ class GameInfo extends Component {
       [keyStringA]: questionB,
       [keyStringB]: questionA
     })
+    .then(() => console.log('updated successfully'))
+    .catch(err => console.log('Error updating document', err))
   }
 
   writeQuestion(prompt, response, isPublic) {
@@ -75,6 +78,15 @@ class GameInfo extends Component {
     .then(docRef => docRef.get())
     .then(doc => this.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
     .catch(err => console.log('Error writing document', err))
+  }
+
+  setHeader(header, col) {
+    const keyString = `categories.${col}.name`
+    this.gameRef.update({
+      [keyString]: header
+    })
+    .then(() => console.log('updated successfully'))
+    .catch(err => console.log('Error updating document', err))
   }
 
   getCell(event) {
@@ -115,6 +127,7 @@ class GameInfo extends Component {
           clearQuestion={this.clearQuestion}
           addQuestionToGame={this.addQuestionToGame}
           swapQuestions={this.swapQuestions}
+          setHeader={this.setHeader}
         />
         <Segment attached="bottom">
         {selectedQuestion ?
@@ -122,7 +135,7 @@ class GameInfo extends Component {
             <Question question={selectedQuestion} />
           </Item.Group>
           : coordsAreValid && selectedIsLocked ? <QuestionInput writeQuestion={this.writeQuestion} />
-          : coordsAreValid ? 'Click an empty cell to create a question'
+          : coordsAreValid ? 'Click to create a question'
           : 'Hover over the board to view questions. Click a question select it.'}
         </Segment>
       </div>

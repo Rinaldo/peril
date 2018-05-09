@@ -11,12 +11,12 @@ const parseTags = tagString =>
   }, {})
   : {})
 
-  const initialState = {
-    prompt: '',
-    response: '',
-    isPublic: true,
-    tags: '',
-  }
+const initialState = {
+  prompt: '',
+  response: '',
+  isPublic: true,
+  tags: '',
+}
 
 class QuestionInput extends Component {
 
