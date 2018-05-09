@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Button, Checkbox, Form, Input, Radio, Select, TextArea } from 'semantic-ui-react'
+import { Form } from 'semantic-ui-react'
 
-import { db } from '../firebase'
+// import { db } from '../firebase'
 
 const parseTags = tagString =>
   (tagString ?
@@ -32,15 +32,9 @@ class QuestionInput extends Component {
   }
 
   handleSubmit() {
-    db.collection('questions').add({
-      prompt: this.state.prompt,
-      response: this.state.response,
-      isPublic: this.state.isPublic,
-      tags: parseTags(this.state.tags)
-    })
-    .then(() => console.log('Document written successfully'))
-    .catch(err => console.log('Error writing document', err))
+    this.props.writeQuestion(this.state.prompt, this.state.response, this.state.isPublic)
     this.setState(initialState)
+    console.log('tags not currently supported')
   }
 
   render() {
@@ -63,7 +57,7 @@ class QuestionInput extends Component {
         <Form.Input
           name="tags"
           label="Enter any number of tags separated by commas"
-          placeholder="History, American History, Revolution"
+          placeholder="American History, History"
           value={this.state.tags}
           onChange={this.handleChange} />
         <Form.Checkbox
@@ -72,7 +66,7 @@ class QuestionInput extends Component {
           label="Make my question public"
           onChange={this.handleChange} />
         <Form.Button
-          content="Submit"
+          content="Save Question"
           disabled={!(this.state.prompt && this.state.response)}
           onClick={this.handleSubmit} />
       </Form>

@@ -1,25 +1,48 @@
 import React from 'react'
-import { DropTarget } from 'react-dnd'
+import { DragSource, DropTarget } from 'react-dnd'
 import { ItemTypes } from '../utils'
 
 
 const cellTarget = {
   drop(props, monitor) {
-    console.log(monitor.getItem())
-    props.saveQuestion(monitor.getItem(), props.row, props.col)
+    const { question: draggedQuestion, row: draggedRow, col: draggedCol } = monitor.getItem()
+    const { cell: targetQuestion, row: targetRow, col: targetCol } = props
+
+    if (monitor.getItemType() === ItemTypes.QUESTION_FROM_LIST) {
+      props.addQuestionToGame(draggedQuestion, targetRow, targetCol)
+    } else {
+      props.swapQuestions(draggedQuestion, targetRow, targetCol, targetQuestion, draggedRow, draggedCol)
+    }
     props.selectQuestion(null, true, [props.row, props.col])
     // should also unlock selected
   }
-};
+}
 
-function collect(connect) {
+function collectDrop(connect) {
   return {
     connectDropTarget: connect.dropTarget(),
   }
 }
 
+const cellSource = {
+  beginDrag(props) {
+    return {
+      question: props.cell,
+      row: props.row,
+      col: props.col,
+    }
+  }
+}
+
+function collectDrag(connect) {
+  return {
+    connectDragSource: connect.dragSource(),
+  }
+}
+
 const BoardCell = ({
   connectDropTarget,
+  connectDragSource,
   multiplier,
   cell,
   row,
@@ -30,7 +53,7 @@ const BoardCell = ({
   toggleLock,
   }) => {
   // console.log('boardCell props', props)
-  return connectDropTarget(
+  return connectDragSource(connectDropTarget(
     <div
       style={{ padding: '1em' }}
       className={
@@ -46,7 +69,10 @@ const BoardCell = ({
     >
       {(row + 1) * multiplier}
     </div>
-  )
+  ))
 }
 
-export default DropTarget([ItemTypes.QUESTION_FROM_LIST, ItemTypes.QUESTION_FROM_BOARD], cellTarget, collect)(BoardCell)
+const droppable = DropTarget([ItemTypes.QUESTION_FROM_LIST, ItemTypes.QUESTION_FROM_BOARD], cellTarget, collectDrop)(BoardCell)
+const dragAndDroppable = DragSource(ItemTypes.QUESTION_FROM_BOARD, cellSource, collectDrag)(droppable)
+
+export default dragAndDroppable

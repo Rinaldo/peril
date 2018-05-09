@@ -6,7 +6,9 @@ import { ItemTypes } from '../utils'
 
 const questionSource = {
   beginDrag(props) {
-    return props.question
+    return {
+      question: props.question
+    }
   }
 }
 

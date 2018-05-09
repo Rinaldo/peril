@@ -5,6 +5,7 @@ import { equivalent, formatGame } from '../utils'
 
 import Board from './Board'
 import Question from './Question'
+import QuestionInput from './QuestionInput'
 
 
 class GameInfo extends Component {
@@ -20,7 +21,9 @@ class GameInfo extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-    this.saveQuestion = this.saveQuestion.bind(this)
+    this.addQuestionToGame = this.addQuestionToGame.bind(this)
+    this.swapQuestions = this.swapQuestions.bind(this)
+    this.writeQuestion = this.writeQuestion.bind(this)
   }
 
   componentDidMount() {
@@ -47,11 +50,31 @@ class GameInfo extends Component {
     this.unsubscribe()
   }
 
-  saveQuestion(question, rowIndex, colIndex) {
-    const keyString = `categories.${colIndex}.questions.${rowIndex}`
-    this.gameRef.update({
+  addQuestionToGame(question, row, col) {
+    const keyString = `categories.${col}.questions.${row}`
+    return this.gameRef.update({
       [keyString]: question
     })
+  }
+
+  swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
+    const keyStringA = `categories.${aCol}.questions.${aRow}`
+    const keyStringB = `categories.${bCol}.questions.${bRow}`
+    this.gameRef.update({
+      [keyStringA]: questionB,
+      [keyStringB]: questionA
+    })
+  }
+
+  writeQuestion(prompt, response, isPublic) {
+    db.collection('questions').add({
+        prompt,
+        response,
+        isPublic,
+    })
+    .then(docRef => docRef.get())
+    .then(doc => this.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
+    .catch(err => console.log('Error writing document', err))
   }
 
   getCell(event) {
@@ -79,9 +102,8 @@ class GameInfo extends Component {
   render() {
     const { gameInfo, selectedIsLocked, selectedCoords } = this.state
     const [selectedRow, selectedCol] = selectedCoords
-    const selectedQuestion =
-      selectedRow !== null && selectedCol !== null ? gameInfo.rows[selectedRow][selectedCol]
-      : null
+    const coordsAreValid = selectedRow !== null && selectedCol !== null
+    const selectedQuestion = coordsAreValid ? gameInfo.rows[selectedRow][selectedCol] : null
     return !this.state.init ? (
       <div>
         <Board
@@ -91,14 +113,17 @@ class GameInfo extends Component {
           selectQuestion={this.selectQuestion}
           toggleLock={this.toggleLock}
           clearQuestion={this.clearQuestion}
-          saveQuestion={this.saveQuestion}
+          addQuestionToGame={this.addQuestionToGame}
+          swapQuestions={this.swapQuestions}
         />
         <Segment attached="bottom">
         {selectedQuestion ?
           <Item.Group>
             <Question question={selectedQuestion} />
           </Item.Group>
-          : 'Hover over the board to view questions. Click a question to lock the selection.'}
+          : coordsAreValid && selectedIsLocked ? <QuestionInput writeQuestion={this.writeQuestion} />
+          : coordsAreValid ? 'Click an empty cell to create a question'
+          : 'Hover over the board to view questions. Click a question select it.'}
         </Segment>
       </div>
       )
