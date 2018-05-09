@@ -30,7 +30,7 @@ class Questions extends Component {
           <Menu.Item name="Top Questions" />
         </Menu>
         <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
-        <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Categories..." />
+        <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Questions..." />
         </Segment>
         <Segment attached style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
           {!this.state.init ? (<Item.Group divided>
