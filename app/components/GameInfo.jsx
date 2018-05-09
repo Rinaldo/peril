@@ -129,7 +129,7 @@ class GameInfo extends Component {
           swapQuestions={this.swapQuestions}
           setHeader={this.setHeader}
         />
-        <Segment attached="bottom">
+        <Segment attached>
         {selectedQuestion ?
           <Item.Group>
             <Question question={selectedQuestion} />

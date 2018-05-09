@@ -18,6 +18,9 @@
 .empty-cell {
   color: rgba(0, 0, 0, .1);
 }
+.default-color {
+  color: rgb(192, 192, 192);
+}
 
 
 /* background: rgba(0,0,0,.05); */

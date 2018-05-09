@@ -8,7 +8,7 @@ import HeaderCell from './HeaderCell'
 const Board = ({ clearQuestion, game, ...propsToPass }) => {
     // console.log('game', game)
     return (
-      <Table fixed unstackable size="large" attached="top">
+      <Table fixed unstackable size="large" attached>
         <Table.Header>
           <Table.Row textAlign="center">
             {game.headers.map((header, headerIndex) => (

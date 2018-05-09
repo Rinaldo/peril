@@ -25,14 +25,14 @@ class Questions extends Component {
   render() {
     return (
       <div className="questions">
-        <Menu attached="top" widths={2}>
+        <Menu attached widths={2}>
           <Menu.Item name="My Questions" />
           <Menu.Item name="Top Questions" />
         </Menu>
         <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
         <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Categories..." />
         </Segment>
-        <Segment attached="bottom" style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
+        <Segment attached style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
           {!this.state.init ? (<Item.Group divided>
             {this.state.questions.map(question => (
               <Question key={question.questionId} question={question} />

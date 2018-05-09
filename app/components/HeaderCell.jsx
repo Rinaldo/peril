@@ -37,7 +37,7 @@ class HeaderCell extends Component {
     return (
       <Popup
         trigger={
-          <p style={{ padding: '1em' }}>
+          <p style={{ padding: '1em' }} className={this.props.header ? null : 'default-color'}>
             {this.props.header || `Category${this.props.index + 1}`}
           </p>
         }
