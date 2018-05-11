@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import { Form } from 'semantic-ui-react'
 
-// import { db } from '../firebase'
 
-const parseTags = tagString =>
-  (tagString ?
-  tagString.split(',').reduce((obj, key) => {
-    const trimmed = key.trim()
-    return { ...obj, [trimmed]: true }
-  }, {})
-  : {})
+// const parseTags = tagString =>
+//   (tagString ?
+//   tagString.split(',').reduce((obj, key) => {
+//     const trimmed = key.trim()
+//     return { ...obj, [trimmed]: true }
+//   }, {})
+//   : {})
 
 const initialState = {
   prompt: '',

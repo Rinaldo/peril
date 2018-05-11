@@ -1,48 +1,43 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
-import { db } from '../firebase'
+import { fireConnect } from '../firebase'
 
 import Question from './Question'
 
-class Questions extends Component {
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      init: true
-    }
-  }
-
-  componentDidMount() {
-    db.collection('questions').where('isPublic', '==', true)
-      .onSnapshot(querySnapshot => {
-          const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), questionId: doc.id }))
-          // console.log(docsData)
-          this.setState({ questions: docsData, init: false })
-      })
-  }
-
-  render() {
-    return (
-      <div className="questions">
-        <Menu attached widths={2}>
-          <Menu.Item name="My Questions" />
-          <Menu.Item name="Top Questions" />
-        </Menu>
-        <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
-        <Input transparent icon={{ name: 'search', link: true }} style={{ display: 'block' }} placeholder="Search Questions..." />
-        </Segment>
-        <Segment attached style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
-          {!this.state.init ? (<Item.Group divided>
-            {this.state.questions.map(question => (
-              <Question key={question.questionId} question={question} />
-            ))}
-          </Item.Group>)
-          : <Loader />
-          }
-        </Segment>
-      </div>)
-  }
+const Questions = (props) => {
+  // console.log('props', props)
+  return (
+    <div className="questions">
+      <Menu attached widths={2}>
+        <Menu.Item name="My Questions" />
+        <Menu.Item name="Top Questions" />
+      </Menu>
+      <Segment attached style={{ height: '40px', paddingTop: '10px' }}>
+      <Input
+        transparent
+        icon={{ name: 'search', link: true }}
+        style={{ display: 'block' }}
+        placeholder="Search Questions..."
+      />
+      </Segment>
+      <Segment attached style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
+        {props.isLoaded ? (<Item.Group divided>
+          {props.questions.map(question => (
+            <Question key={question.questionId} question={question} />
+          ))}
+        </Item.Group>)
+        : <Loader />}
+      </Segment>
+    </div>)
 }
 
-export default Questions
+function addListener(component, db) {
+  return db.collection('questions').where('isPublic', '==', true)
+  .onSnapshot(querySnapshot => {
+      const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), questionId: doc.id }))
+      component.setState({ questions: docsData, isLoaded: true })
+  })
+}
+
+export default fireConnect(addListener)(Questions)

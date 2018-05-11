@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { db, auth, provider } from '../firebase'
+// import { db, auth, provider } from '../firebase'
 
 import GameCreation from './GameCreation'
 import Navbar from './Navbar'
-import LoginForm from './LoginForm'
+// import LoginForm from './LoginForm'
 
 
 class Main extends Component {

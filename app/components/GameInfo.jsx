@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Segment, Item, Loader } from 'semantic-ui-react'
-import { db } from '../firebase'
 import { equivalent, formatGame } from '../utils'
+import { fireConnect } from '../firebase'
 
 import Board from './Board'
 import Question from './Question'
@@ -13,80 +13,15 @@ class GameInfo extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      init: true,
       selectedCoords: [null, null],
-      selectedIsLocked: false,
+      locked: false,
     }
     this.getCell = this.getCell.bind(this)
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-    this.addQuestionToGame = this.addQuestionToGame.bind(this)
-    this.swapQuestions = this.swapQuestions.bind(this)
-    this.writeQuestion = this.writeQuestion.bind(this)
-    this.setHeader = this.setHeader.bind(this)
-  }
-
-  componentDidMount() {
-    this.gameRef = db
-    .collection('gameTemplates')
-    .doc('xAhHuSSb01guhLrh7nvj')
-    .collection('gameInfo')
-    .doc('info')
-    this.unsubscribe = this.gameRef.onSnapshot(doc => {
-      if (doc.exists) {
-        this.setState({ gameInfo: formatGame(doc.data()), init: false })
-      } else {
-        this.gameRef.set({
-          multiplier: 200,
-          height: 5,
-          width: 6,
-        })
-        .catch(err => console.log('Error creating document', err))
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
-  addQuestionToGame(question, row, col) {
-    const keyString = `categories.${col}.questions.${row}`
-    return this.gameRef.update({
-      [keyString]: question
-    })
-  }
-
-  swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
-    const keyStringA = `categories.${aCol}.questions.${aRow}`
-    const keyStringB = `categories.${bCol}.questions.${bRow}`
-    this.gameRef.update({
-      [keyStringA]: questionB,
-      [keyStringB]: questionA
-    })
-    .then(() => console.log('updated successfully'))
-    .catch(err => console.log('Error updating document', err))
-  }
-
-  writeQuestion(prompt, response, isPublic) {
-    db.collection('questions').add({
-        prompt,
-        response,
-        isPublic,
-    })
-    .then(docRef => docRef.get())
-    .then(doc => this.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
-    .catch(err => console.log('Error writing document', err))
-  }
-
-  setHeader(header, col) {
-    const keyString = `categories.${col}.name`
-    this.gameRef.update({
-      [keyString]: header
-    })
-    .then(() => console.log('updated successfully'))
-    .catch(err => console.log('Error updating document', err))
+    // binding so it has access to both the connector's state and this component's state
+    this.writeQuestion = this.props.writeQuestion.bind(this)
   }
 
   getCell(event) {
@@ -94,47 +29,43 @@ class GameInfo extends Component {
   }
   selectQuestion(event, force, coords) {
     const selectedCoords = event ? this.getCell(event) : coords
-    if (!this.state.selectedIsLocked || force) this.setState({ selectedCoords })
+    if (!this.state.locked || force) this.setState({ selectedCoords })
   }
   toggleLock(event) {
     const currentCoords = this.getCell(event)
-    const { selectedCoords, selectedIsLocked } = this.state
+    const { selectedCoords, locked } = this.state
 
-    if (equivalent(currentCoords, selectedCoords) && selectedIsLocked) {
-      this.setState({ selectedIsLocked: false })
+    if (equivalent(currentCoords, selectedCoords) && locked) {
+      this.setState({ locked: false })
     } else {
       this.selectQuestion(event, true)
-      this.setState({ selectedIsLocked: true })
+      this.setState({ locked: true })
     }
   }
   clearQuestion() {
-    if (!this.state.selectedIsLocked) this.setState({ selectedCoords: [null, null] })
+    if (!this.state.locked) this.setState({ selectedCoords: [null, null] })
   }
 
   render() {
-    const { gameInfo, selectedIsLocked, selectedCoords } = this.state
-    const [selectedRow, selectedCol] = selectedCoords
+    const [selectedRow, selectedCol] = this.state.selectedCoords
     const coordsAreValid = selectedRow !== null && selectedCol !== null
-    const selectedQuestion = coordsAreValid ? gameInfo.rows[selectedRow][selectedCol] : null
-    return !this.state.init ? (
+    const selectedQuestion = coordsAreValid ? this.props.game.rows[selectedRow][selectedCol] : null
+
+    return this.props.isLoaded ? (
       <div>
         <Board
-          game={gameInfo}
-          selectedCoords={selectedCoords}
-          locked={selectedIsLocked}
+          {...this.props}
+          {...this.state}
           selectQuestion={this.selectQuestion}
           toggleLock={this.toggleLock}
           clearQuestion={this.clearQuestion}
-          addQuestionToGame={this.addQuestionToGame}
-          swapQuestions={this.swapQuestions}
-          setHeader={this.setHeader}
         />
         <Segment attached>
         {selectedQuestion ?
           <Item.Group>
             <Question question={selectedQuestion} />
           </Item.Group>
-          : coordsAreValid && selectedIsLocked ? <QuestionInput writeQuestion={this.writeQuestion} />
+          : coordsAreValid && this.state.locked ? <QuestionInput writeQuestion={this.writeQuestion} />
           : coordsAreValid ? 'Click to create a question'
           : 'Hover over the board to view questions. Click a question select it.'}
         </Segment>
@@ -144,4 +75,61 @@ class GameInfo extends Component {
   }
 }
 
-export default GameInfo
+function addListener(component, db) {
+  component.gameRef = db
+    .collection('gameTemplates')
+    .doc('xAhHuSSb01guhLrh7nvj')
+    .collection('gameInfo')
+    .doc('info')
+  return component.gameRef.onSnapshot(doc => {
+    if (doc.exists) {
+      component.setState({ game: formatGame(doc.data()), isLoaded: true })
+    } else {
+      component.gameRef.set({
+        multiplier: 200,
+        height: 5,
+        width: 6,
+      })
+      .catch(err => console.error('Error creating document', err))
+    }
+  })
+}
+
+function addDispatchers(component, db) {
+  return {
+    addQuestionToGame(question, row, col) {
+      const keyString = `categories.${col}.questions.${row}`
+      return component.gameRef.update({
+        [keyString]: question
+      })
+    },
+    swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
+      const keyStringA = `categories.${aCol}.questions.${aRow}`
+      const keyStringB = `categories.${bCol}.questions.${bRow}`
+      component.gameRef.update({
+        [keyStringA]: questionB,
+        [keyStringB]: questionA
+      })
+      .catch(err => console.error('Error updating document', err))
+    },
+    writeQuestion(prompt, response, isPublic) {
+      db.collection('questions').add({
+          prompt,
+          response,
+          isPublic,
+      })
+      .then(docRef => docRef.get())
+      .then(doc => component.dispatchers.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
+      .catch(err => console.error('Error updating document', err))
+    },
+    setHeader(header, col) {
+      const keyString = `categories.${col}.name`
+      component.gameRef.update({
+        [keyString]: header
+      })
+      .catch(err => console.error('Error updating document', err))
+    },
+  }
+}
+
+export default fireConnect(addListener, addDispatchers)(GameInfo)
