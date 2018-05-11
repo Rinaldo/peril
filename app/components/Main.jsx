@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
-// import { db, auth, provider } from '../firebase'
+import React, { Component, Fragment } from 'react'
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
+import { authConnect } from '../firebase'
 
 import GameCreation from './GameCreation'
 import Navbar from './Navbar'
-// import LoginForm from './LoginForm'
+import SplashPage from './SplashPage'
 
 
 class Main extends Component {
@@ -59,20 +60,15 @@ class Main extends Component {
   // }
 
   render() {
-    // console.log('user on state:', this.state.user)
     return (
       <div className="main">
-        {/* <h1>Auth Test</h1>
-        {this.state.user ?
-          <button onClick={this.logout}>Log Out</button>
-          :
-          <LoginForm />
-        } */}
         <Navbar />
-        <GameCreation />
+        {this.props.user ? <GameCreation /> : <SplashPage />}
       </div>
     )
   }
 }
 
-export default Main
+export default authConnect()(Main)
+
+// response.additionalUserInfo.isNewUser

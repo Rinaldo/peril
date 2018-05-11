@@ -7,7 +7,7 @@
     "@firebase/firestore": "^0.3.7",
     "firebase": "^4.12.1",
     "npm": "^5.8.0",
-    "react": "^16.2.0",
+    "react": "^16.3.2",
     "react-dnd": "^2.6.0",
     "react-dnd-html5-backend": "^2.6.0",
     "react-dom": "^16.2.0",

@@ -10,7 +10,7 @@ export default (db, auth) => (listener, dispatchers) => Component => class fireC
 
   componentDidMount() {
     this.unsubscribeDb = listener && listener(this, db)
-    this.unsubscribeAuth = auth && auth.onAuthStateChanged(user => this.setState({ user }))
+    this.unsubscribeAuth = auth && auth.onIdTokenChanged(user => this.setState({ user }))
   }
 
   componentWillUnmount() {

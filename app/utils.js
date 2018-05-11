@@ -31,3 +31,37 @@ export const equivalent = (left, right) => {
   }
   return true
 }
+
+export const loginFields = [
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'text',
+    placeholder: 'email@example.com',
+  },
+  {
+    name: 'password',
+    type: 'password',
+    label: 'Password',
+  }
+]
+
+export const signupFields = [
+  {
+    name: 'name',
+    label: 'Name',
+    type: 'text',
+    placeholder: 'John Doe',
+  },
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'text',
+    placeholder: 'email@example.com',
+  },
+  {
+    name: 'password',
+    type: 'password',
+    label: 'Password',
+  }
+]
