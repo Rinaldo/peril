@@ -12,14 +12,13 @@ class AuthForm extends Component {
       password: '',
     }
     this.handleChange = this.handleChange.bind(this)
-    this.SignupOrLogin = this.SignupOrLogin.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  SignupOrLogin(evt) {
-    const { name, email, password } = this.state
+  handleSubmit(evt) {
     evt.preventDefault()
-    this.props.method === 'Sign up' && this.props.emailSignup(name, email, password)
-    this.props.method === 'Log in' && this.props.emailLogin(email, password)
+    const { name, email, password } = this.state
+    this.props.submit(email, password, name)
     this.setState({ authLoading: true })
     }
 
@@ -29,7 +28,7 @@ class AuthForm extends Component {
 
   render() {
     return this.state.authLoading ? <Loader /> : (
-      <Form>
+      <Form onSubmit={this.handleSubmit}>
         {this.props.formFields.map(field => (
           <Form.Input
             key={field.name}
@@ -43,7 +42,7 @@ class AuthForm extends Component {
         ))}
         <Form.Button
           content={this.props.method}
-          onClick={this.SignupOrLogin}
+          type="submit"
         />
       </Form>
     )

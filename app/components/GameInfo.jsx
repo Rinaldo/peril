@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Segment, Item, Loader } from 'semantic-ui-react'
 import { equivalent, formatGame } from '../utils'
-import { fireConnect } from '../firebase'
+import { fireAuthConnect } from '../firebase'
 
 import Board from './Board'
 import Question from './Question'
@@ -20,7 +20,7 @@ class GameInfo extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-    // binding so it has access to both the connector's state and this component's state
+    // binding it so it has access to both the connector's state and this component's state
     this.writeQuestion = this.props.writeQuestion.bind(this)
   }
 
@@ -95,13 +95,14 @@ function addListener(component, db) {
   })
 }
 
-function addDispatchers(component, db) {
+function addDispatchers(component, db, auth) {
   return {
     addQuestionToGame(question, row, col) {
       const keyString = `categories.${col}.questions.${row}`
       return component.gameRef.update({
         [keyString]: question
       })
+      .catch(err => console.error('Error adding question', err))
     },
     swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
       const keyStringA = `categories.${aCol}.questions.${aRow}`
@@ -110,26 +111,29 @@ function addDispatchers(component, db) {
         [keyStringA]: questionB,
         [keyStringB]: questionA
       })
-      .catch(err => console.error('Error updating document', err))
+      .catch(err => console.error('Error updating questions', err))
     },
-    writeQuestion(prompt, response, isPublic) {
+    // bound in wrapped component, should maybe refactor
+    writeQuestion(question) {
       db.collection('questions').add({
-          prompt,
-          response,
-          isPublic,
+          ...question,
+          author: {
+            name: component.state.user.displayName,
+            uid: component.state.user.uid,
+          }
       })
       .then(docRef => docRef.get())
       .then(doc => component.dispatchers.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
-      .catch(err => console.error('Error updating document', err))
+      .catch(err => console.error('Error writing question', err))
     },
     setHeader(header, col) {
       const keyString = `categories.${col}.name`
       component.gameRef.update({
         [keyString]: header
       })
-      .catch(err => console.error('Error updating document', err))
+      .catch(err => console.error('Error updating header', err))
     },
   }
 }
 
-export default fireConnect(addListener, addDispatchers)(GameInfo)
+export default fireAuthConnect(addListener, addDispatchers)(GameInfo)

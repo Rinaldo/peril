@@ -35,7 +35,7 @@ const Question = ({ question }) => {
               <Label key={tag}>{tag}</Label>
             ))}
           </Item.Extra>
-          <Item.Extra>By {question.author && question.author.username}</Item.Extra>
+          <Item.Extra>By {question.author && question.author.name}</Item.Extra>
         </Item.Content>
       </Item>
   )

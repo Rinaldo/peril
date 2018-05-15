@@ -6,7 +6,7 @@ import { loginFields, signupFields } from '../utils'
 import AuthDropdown from './AuthDropdown'
 
 
-const Navbar = ({ user, logOut, ...propsToPass }) => (
+const Navbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
   <Menu attached inverted>
     <Menu.Item>
       Peril
@@ -15,10 +15,10 @@ const Navbar = ({ user, logOut, ...propsToPass }) => (
       {!user ?
       <React.Fragment>
         <Menu.Item>
-          <AuthDropdown method="Sign up" formFields={signupFields} {...propsToPass} />
+          <AuthDropdown method="Sign up" submit={emailSignup} formFields={signupFields} {...propsToPass} />
         </Menu.Item>
         <Menu.Item>
-          <AuthDropdown method="Log in" formFields={loginFields} {...propsToPass} />
+          <AuthDropdown method="Log in" submit={emailLogin} formFields={loginFields} {...propsToPass} />
         </Menu.Item>
       </React.Fragment>
       :
@@ -50,7 +50,7 @@ const addDispatchers = (component, db, auth) => ({
     .catch(err => console.error('Sign up or sign in error:', err))
   },
   // returns the user object
-  emailSignup(name, email, password) {
+  emailSignup(email, password, name) {
     auth.createUserWithEmailAndPassword(email, password)
     .then(user => Promise.all([user, user.updateProfile({ displayName: name })]))
     .then(([user]) => user.getIdToken(true))

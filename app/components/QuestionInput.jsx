@@ -31,7 +31,11 @@ class QuestionInput extends Component {
   }
 
   handleSubmit() {
-    this.props.writeQuestion(this.state.prompt, this.state.response, this.state.isPublic)
+    this.props.writeQuestion({
+      prompt: this.state.prompt,
+      response: this.state.response,
+      isPublic: this.state.isPublic,
+    })
     this.setState(initialState)
     console.log('tags not currently supported')
   }

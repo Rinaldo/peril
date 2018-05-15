@@ -37,22 +37,22 @@ const formatGame = game => {
   return formatted
 }
 
-const addQuestions = (user, name) => {
+const addQuestions = (user) => {
   const rows = formatGame(gameToSeed).rows
   const promises = []
   for (let row of rows) {
     for (let question of row) {
-      const obj = {
+      const questionObj = {
         isPublic: true,
         prompt: question.prompt,
         response: question.response,
         author: {
-          username: name,
+          name: user.displayName,
           uid: user.uid,
         }
       }
-      if (question.double) obj.double = true
-      promises.push(db.collection('questions').add(obj))
+      if (question.double) questionObj.double = true
+      promises.push(db.collection('questions').add(questionObj))
     }
   }
   return Promise.all(promises)
@@ -60,7 +60,7 @@ const addQuestions = (user, name) => {
 
 firebase.auth().signInWithEmailAndPassword('', '')
 .then(user => {
-  return addQuestions(user, '')
+  return addQuestions(user)
   .catch(err => console.log('Error adding questions', err))
   .then(() => console.log('Done'))
 })

@@ -9,13 +9,25 @@ export default (db, auth) => (listener, dispatchers) => Component => class fireC
   }
 
   componentDidMount() {
-    this.unsubscribeDb = listener && listener(this, db)
-    this.unsubscribeAuth = auth && auth.onIdTokenChanged(user => this.setState({ user }))
+    // refactor to avoid waiting for auth and state change before setting up listener?
+    if (auth && listener) {
+      this.unsubscribeAuth = auth.onIdTokenChanged(user =>
+        this.setState({ user }, () => {
+          if (!this.unsubscribeDb) this.unsubscribeDb = listener(this, db)
+        })
+      )
+    } else if (auth) {
+      this.unsubscribeAuth = auth.onIdTokenChanged(user => this.setState({ user }))
+    } else if (listener) {
+      this.unsubscribeDb = listener(this, db, auth)
+    }
+    // this.unsubscribeAuth = auth && auth.onIdTokenChanged(user => this.setState({ user }))
+    // this.unsubscribeDb = listener && listener(this, db, auth)
   }
 
   componentWillUnmount() {
-    this.unsubscribeDb && this.unsubscribeDb()
     this.unsubscribeAuth && this.unsubscribeAuth()
+    this.unsubscribeDb && this.unsubscribeDb()
   }
 
   render() {
