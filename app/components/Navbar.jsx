@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Button, Menu } from 'semantic-ui-react'
 import { authConnect, googleProvider } from '../firebase'
 import { loginFields, signupFields } from '../utils'
@@ -8,7 +9,7 @@ import AuthDropdown from './AuthDropdown'
 
 const Navbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
   <Menu attached inverted>
-    <Menu.Item>
+    <Menu.Item as={Link} to="/home">
       Peril
     </Menu.Item>
     <Menu.Menu position="right">

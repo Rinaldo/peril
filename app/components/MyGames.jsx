@@ -1,18 +1,19 @@
 import React from 'react'
-import { Item, Loader, Modal, Header, Button } from 'semantic-ui-react'
+import { Link } from 'react-router-dom'
+import { Item } from 'semantic-ui-react'
 import { fireAuthConnect } from '../firebase'
 
 import GameCreationModal from './GameCreationModal'
 
 const MyGames = props => {
-  // console.log('props user:', props.user)
+  // console.log('mygames props', props)
   return (
     <div>
       <Item.Group>
         {props.isLoaded && props.games.map(game => (
           <Item key={game.docId}>
             <Item.Content>
-              <Item.Header as="a" >{game.title}</Item.Header>
+              <Item.Header as={Link} to={`games/${game.docId}`}>{game.title}</Item.Header>
               <Item.Meta>by {game.author && game.author.name}</Item.Meta>
               <Item.Description>{game.description}</Item.Description>
             </Item.Content>
@@ -51,8 +52,9 @@ function addDispatchers(component, db) {
           height,
           multiplier,
         })
+        .then(() => docRef)
       )
-      .then(() => null) // history.push
+      .then(docRef => component.props.history.push(`games/${docRef}`))
       .catch(err => console.error('Error creating game', err))
     }
   }

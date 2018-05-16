@@ -31,7 +31,7 @@ class QuestionInput extends Component {
 
   render() {
     return (
-      <Modal size="small" trigger={<Button>Create New Game</Button>}>
+      <Modal trigger={<Button>Create New Game</Button>}>
         <Modal.Header>Create New Game</Modal.Header>
         <Modal.Content>
           <Form>
@@ -74,7 +74,7 @@ class QuestionInput extends Component {
             <Form.Checkbox
               defaultChecked={true}
               name="isPublic"
-              label="Make my question public"
+              label="Make this game public"
               onChange={this.handleChange}
             />
           </Form>

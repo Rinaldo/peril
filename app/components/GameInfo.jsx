@@ -50,7 +50,7 @@ class GameInfo extends Component {
     const [selectedRow, selectedCol] = this.state.selectedCoords
     const coordsAreValid = selectedRow !== null && selectedCol !== null
     const selectedQuestion = coordsAreValid ? this.props.game.rows[selectedRow][selectedCol] : null
-
+    // console.log('game', this.props.game)
     return this.props.isLoaded ? (
       <div>
         <Board
@@ -76,26 +76,23 @@ class GameInfo extends Component {
 }
 
 function addListener(component, db) {
+  console.log('gameId:', component.props.gameId)
   component.gameRef = db
     .collection('gameTemplates')
-    .doc('xAhHuSSb01guhLrh7nvj')
+    .doc(component.props.gameId)
     .collection('gameInfo')
     .doc('info')
   return component.gameRef.onSnapshot(doc => {
     if (doc.exists) {
+      console.log('doc', doc)
       component.setState({ game: formatGame(doc.data()), isLoaded: true })
     } else {
-      component.gameRef.set({
-        multiplier: 200,
-        height: 5,
-        width: 6,
-      })
-      .catch(err => console.error('Error creating document', err))
+      console.error('Error: document does not exist')
     }
   })
 }
 
-function addDispatchers(component, db, auth) {
+function addDispatchers(component, db) {
   return {
     addQuestionToGame(question, row, col) {
       const keyString = `categories.${col}.questions.${row}`

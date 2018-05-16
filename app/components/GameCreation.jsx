@@ -11,7 +11,7 @@ class GameCreation extends Component {
   render() {
     return (
       <div className="game-creation">
-        <GameInfo />
+        <GameInfo gameId={this.props.match.params.gameId} />
         <QuestionList />
       </div>
     )

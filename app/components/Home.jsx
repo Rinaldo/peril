@@ -1,13 +1,17 @@
 import React from 'react'
 
-const Home = props => (
+import MyGames from './MyGames'
+
+const Home = props => {
+  // console.log('home props', props)
+  return (
   <div>
-    {/* <MyGames />
-    <TopGames />
+    <MyGames history={props.history} />
+    {/* <TopGames />
     <MyQuestions />
     <TopQuestions /> */}
-    stuff goes here
   </div>
-)
+  )
+}
 
 export default Home

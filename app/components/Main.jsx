@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react'
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
+import { Loader } from 'semantic-ui-react'
 import { authConnect } from '../firebase'
 
 import GameCreation from './GameCreation'
 import Navbar from './Navbar'
 import SplashPage from './SplashPage'
-import MyGames from './MyGames'
+import Home from './Home'
 
 
 class Main extends Component {
@@ -16,12 +17,23 @@ class Main extends Component {
   }
 
   render() {
-    return (
-      <div className="main">
-        <Navbar />
-        {this.props.user ? <MyGames /> : <SplashPage />}
-      </div>
-    )
+    return this.props.user !== undefined ? (
+      <Router>
+        <Fragment>
+          <Navbar />
+          {
+            this.props.user ?
+            <Switch>
+              <Route exact path="/" render={() => <Redirect to="/home" />} />
+              <Route path="/home" component={Home} />
+              <Route path="/games/:gameId" component={GameCreation} />
+            </Switch>
+            :
+            <Route component={SplashPage} />
+          }
+        </Fragment>
+      </Router>
+    ) : <Loader />
   }
 }
 
