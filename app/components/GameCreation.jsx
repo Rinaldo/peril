@@ -3,7 +3,7 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import { DragDropContext } from 'react-dnd'
 import { fireConnect, rt } from '../firebase'
 
-import GameInfo from './GameInfo'
+import GameInfoEdit from './GameInfoEdit'
 import QuestionList from './QuestionList'
 import SubHeader from './SubHeader'
 
@@ -17,7 +17,7 @@ class GameCreation extends Component {
       <React.Fragment>
         <SubHeader game={this.props.game} createGameInstance={this.props.createGameInstance} />
         <div className="game-creation">
-          <GameInfo gameId={this.props.match.params.gameId} />
+          <GameInfoEdit gameId={this.props.match.params.gameId} />
           <QuestionList />
         </div>
       </React.Fragment>

@@ -2,17 +2,19 @@ import React from 'react'
 import { firebaseConnect } from '../firebase'
 import { formatGame } from '../utils'
 
-import Board from './Board'
-import BoardCell1 from './BoardCell1'
-import HeaderCell1 from './HeaderCell1'
+// import Board from './Board'
+import GameInfo from './GameInfo'
+import BoardCell from './BoardCell'
+import HeaderCell from './HeaderCell'
 
 const GameHost = props => {
   console.log('rendering host game')
   return props.isLoaded ? (
-    <Board
-      cellComponent={BoardCell1}
-      headerComponent={HeaderCell1}
+    <GameInfo
+      cellComponent={BoardCell}
+      headerComponent={HeaderCell}
       game={props.gameInfo}
+      isLoaded={props.isLoaded}
     />
   ) : null
 }

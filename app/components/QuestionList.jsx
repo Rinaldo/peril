@@ -2,7 +2,7 @@ import React from 'react'
 import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
 import { fireConnect } from '../firebase'
 
-import Question from './Question'
+import QuestionDraggable from './QuestionDraggable'
 
 
 const Questions = (props) => {
@@ -24,7 +24,7 @@ const Questions = (props) => {
       <Segment attached style={{ overflowY: 'scroll', height: 'calc(100% - 80px)' }}>
         {props.isLoaded ? (<Item.Group divided>
           {props.questions.map(question => (
-            <Question key={question.docId} question={question} />
+            <QuestionDraggable key={question.docId} question={question} />
           ))}
         </Item.Group>)
         : <Loader />}

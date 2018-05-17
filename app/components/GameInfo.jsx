@@ -1,11 +1,8 @@
 import React, { Component } from 'react'
 import { Segment, Item, Loader } from 'semantic-ui-react'
-import { equivalent, formatGame } from '../utils'
-import { fireAuthConnect } from '../firebase'
+import { equivalent } from '../utils'
 
 import Board from './Board'
-import BoardCell from './BoardCell'
-import HeaderCell from './HeaderCell'
 import Question from './Question'
 import QuestionInput from './QuestionInput'
 
@@ -22,8 +19,6 @@ class GameInfo extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-    // // binding it so it has access to both the connector's state and this component's state
-    // this.writeQuestionAndAddToGame = this.props.writeQuestionAndAddToGame.bind(this)
   }
 
   getCell(event) {
@@ -31,7 +26,6 @@ class GameInfo extends Component {
   }
   selectQuestion(event, force, coords) {
     const selectedCoords = event ? this.getCell(event) : coords
-    // console.log('coords', selectedCoords, ' arg', coords)
     if (!this.state.locked || force) this.setState({ selectedCoords })
   }
   toggleLock(event) {
@@ -56,8 +50,6 @@ class GameInfo extends Component {
     return this.props.isLoaded ? (
       <div>
         <Board
-          cellComponent={BoardCell}
-          headerComponent={HeaderCell}
           {...this.props}
           {...this.state}
           selectQuestion={this.selectQuestion}
@@ -79,60 +71,4 @@ class GameInfo extends Component {
   }
 }
 
-function addListener(component) {
-  return component.gameRef.onSnapshot(doc => {
-    if (doc.exists) {
-      // console.log('doc', doc)
-      component.setState({ game: formatGame(doc.data()), isLoaded: true })
-    } else {
-      console.error('Error: document does not exist')
-    }
-  })
-}
-
-function addDispatchers(component, db) {
-  component.gameRef = db
-    .collection('gameTemplates')
-    .doc(component.props.gameId)
-    .collection('gameInfo')
-    .doc('info')
-  return {
-    addQuestionToGame(question, row, col) {
-      const keyString = `categories.${col}.questions.${row}`
-      return component.gameRef.update({
-        [keyString]: question
-      })
-      .catch(err => console.error('Error adding question', err))
-    },
-    swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
-      const keyStringA = `categories.${aCol}.questions.${aRow}`
-      const keyStringB = `categories.${bCol}.questions.${bRow}`
-      component.gameRef.update({
-        [keyStringA]: questionB,
-        [keyStringB]: questionA
-      })
-      .catch(err => console.error('Error updating questions', err))
-    },
-    writeQuestionAndAddToGame(question, row, col) {
-      db.collection('questions').add({
-          ...question,
-          author: {
-            name: component.state.user.displayName,
-            uid: component.state.user.uid,
-          }
-      })
-      .then(docRef => docRef.get())
-      .then(doc => component.dispatchers.addQuestionToGame(doc.data(), row, col))
-      .catch(err => console.error('Error writing question', err))
-    },
-    setHeader(header, col) {
-      const keyString = `categories.${col}.name`
-      component.gameRef.update({
-        [keyString]: header
-      })
-      .catch(err => console.error('Error updating header', err))
-    },
-  }
-}
-
-export default fireAuthConnect(addListener, addDispatchers)(GameInfo)
+export default GameInfo
