@@ -6,7 +6,6 @@ import { fireAuthConnect } from '../firebase'
 import GameCreationModal from './GameCreationModal'
 
 const MyGames = props => {
-  // console.log('mygames props', props)
   return (
     <div>
       <Item.Group>

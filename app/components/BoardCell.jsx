@@ -5,15 +5,17 @@ import { ItemTypes } from '../utils'
 
 const cellTarget = {
   drop(props, monitor) {
-    const { question: draggedQuestion, row: draggedRow, col: draggedCol } = monitor.getItem()
-    const { cell: targetQuestion, row: targetRow, col: targetCol } = props
+    const { draggedQuestion, draggedCoords } = monitor.getItem()
+    const draggedRow = draggedCoords ? draggedCoords[0] : null
+    const draggedCol = draggedCoords ? draggedCoords[1] : null
+    const { cell: targetQuestion, currentCoords: [targetRow, targetCol] } = props
 
     if (monitor.getItemType() === ItemTypes.QUESTION_FROM_LIST) {
       props.addQuestionToGame(draggedQuestion, targetRow, targetCol)
     } else {
       props.swapQuestions(draggedQuestion, targetRow, targetCol, targetQuestion, draggedRow, draggedCol)
     }
-    props.selectQuestion(null, true, [props.row, props.col])
+    props.selectQuestion(null, true, props.currentCoords)
     // should also unlock selected
   }
 }
@@ -27,9 +29,8 @@ function collectDrop(connect) {
 const cellSource = {
   beginDrag(props) {
     return {
-      question: props.cell,
-      row: props.row,
-      col: props.col,
+      draggedQuestion: props.cell,
+      draggedCoords: props.currentCoords
     }
   }
 }
@@ -45,29 +46,28 @@ const BoardCell = ({
   connectDragSource,
   multiplier,
   cell,
-  row,
-  col,
+  currentCoords: [currentRow, currentCol],
   selectedCoords: [selectedRow, selectedCol],
   locked,
   selectQuestion,
   toggleLock,
   }) => {
-  // console.log('boardCell props', props)
+  // console.log('boardCell props', [currentRow, currentCol])
   return connectDragSource(connectDropTarget(
     <div
       style={{ padding: '1em' }}
       className={
-        (row === selectedRow &&
-          col === selectedCol &&
+        (currentRow === selectedRow &&
+          currentCol === selectedCol &&
           locked) ? 'selectable-cell locked-selectable-cell'
           : !cell ? 'selectable-cell empty-cell'
           : 'selectable-cell'}
-      row={row}
-      col={col}
+      row={currentRow}
+      col={currentCol}
       onMouseEnter={selectQuestion}
       onClick={toggleLock}
     >
-      {(row + 1) * multiplier}
+      {(currentRow + 1) * multiplier}
     </div>
   ))
 }

@@ -4,6 +4,8 @@ import { equivalent, formatGame } from '../utils'
 import { fireAuthConnect } from '../firebase'
 
 import Board from './Board'
+import BoardCell from './BoardCell'
+import HeaderCell from './HeaderCell'
 import Question from './Question'
 import QuestionInput from './QuestionInput'
 
@@ -20,8 +22,8 @@ class GameInfo extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
-    // binding it so it has access to both the connector's state and this component's state
-    this.writeQuestion = this.props.writeQuestion.bind(this)
+    // // binding it so it has access to both the connector's state and this component's state
+    // this.writeQuestionAndAddToGame = this.props.writeQuestionAndAddToGame.bind(this)
   }
 
   getCell(event) {
@@ -29,6 +31,7 @@ class GameInfo extends Component {
   }
   selectQuestion(event, force, coords) {
     const selectedCoords = event ? this.getCell(event) : coords
+    // console.log('coords', selectedCoords, ' arg', coords)
     if (!this.state.locked || force) this.setState({ selectedCoords })
   }
   toggleLock(event) {
@@ -49,11 +52,12 @@ class GameInfo extends Component {
   render() {
     const [selectedRow, selectedCol] = this.state.selectedCoords
     const coordsAreValid = selectedRow !== null && selectedCol !== null
-    const selectedQuestion = coordsAreValid ? this.props.game.rows[selectedRow][selectedCol] : null
-    // console.log('game', this.props.game)
+    const selectedQuestion = coordsAreValid && this.props.game ? this.props.game.rows[selectedRow][selectedCol] : null
     return this.props.isLoaded ? (
       <div>
         <Board
+          cellComponent={BoardCell}
+          headerComponent={HeaderCell}
           {...this.props}
           {...this.state}
           selectQuestion={this.selectQuestion}
@@ -65,7 +69,7 @@ class GameInfo extends Component {
           <Item.Group>
             <Question question={selectedQuestion} />
           </Item.Group>
-          : coordsAreValid && this.state.locked ? <QuestionInput writeQuestion={this.writeQuestion} />
+          : coordsAreValid && this.state.locked ? <QuestionInput coords={this.state.selectedCoords} writeQuestionAndAddToGame={this.props.writeQuestionAndAddToGame} />
           : coordsAreValid ? 'Click to create a question'
           : 'Hover over the board to view questions. Click a question select it.'}
         </Segment>
@@ -75,16 +79,10 @@ class GameInfo extends Component {
   }
 }
 
-function addListener(component, db) {
-  console.log('gameId:', component.props.gameId)
-  component.gameRef = db
-    .collection('gameTemplates')
-    .doc(component.props.gameId)
-    .collection('gameInfo')
-    .doc('info')
+function addListener(component) {
   return component.gameRef.onSnapshot(doc => {
     if (doc.exists) {
-      console.log('doc', doc)
+      // console.log('doc', doc)
       component.setState({ game: formatGame(doc.data()), isLoaded: true })
     } else {
       console.error('Error: document does not exist')
@@ -93,6 +91,11 @@ function addListener(component, db) {
 }
 
 function addDispatchers(component, db) {
+  component.gameRef = db
+    .collection('gameTemplates')
+    .doc(component.props.gameId)
+    .collection('gameInfo')
+    .doc('info')
   return {
     addQuestionToGame(question, row, col) {
       const keyString = `categories.${col}.questions.${row}`
@@ -110,8 +113,7 @@ function addDispatchers(component, db) {
       })
       .catch(err => console.error('Error updating questions', err))
     },
-    // bound in wrapped component, should maybe refactor
-    writeQuestion(question) {
+    writeQuestionAndAddToGame(question, row, col) {
       db.collection('questions').add({
           ...question,
           author: {
@@ -120,7 +122,7 @@ function addDispatchers(component, db) {
           }
       })
       .then(docRef => docRef.get())
-      .then(doc => component.dispatchers.addQuestionToGame(doc.data(), ...this.state.selectedCoords))
+      .then(doc => component.dispatchers.addQuestionToGame(doc.data(), row, col))
       .catch(err => console.error('Error writing question', err))
     },
     setHeader(header, col) {

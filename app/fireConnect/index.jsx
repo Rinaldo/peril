@@ -5,6 +5,7 @@ import React from 'react'
 export default (db, auth) => (listener, dispatchers) => Component => class fireConnect extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {}
     this.dispatchers = typeof dispatchers === 'function' ? dispatchers(this, db, auth) : {}
   }
 
@@ -33,8 +34,9 @@ export default (db, auth) => (listener, dispatchers) => Component => class fireC
   render() {
     return (
       <Component
-        db={db}
-        auth={auth}
+        // should connected component have access to db and auth?
+        // db={db}
+        // auth={auth}
         {...this.dispatchers}
         {...this.props}
         {...this.state}

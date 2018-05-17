@@ -31,11 +31,11 @@ class QuestionInput extends Component {
   }
 
   handleSubmit() {
-    this.props.writeQuestion({
+    this.props.writeQuestionAndAddToGame({
       prompt: this.state.prompt,
       response: this.state.response,
       isPublic: this.state.isPublic,
-    })
+    }, ...this.props.coords)
     this.setState(initialState)
     console.log('tags not currently supported')
   }
