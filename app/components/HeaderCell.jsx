@@ -7,7 +7,7 @@ const HeaderCell = props => {
       style={{ padding: '1em', cursor: 'default' }}
       className={props.header ? null : 'default-color'}
     >
-      {props.header || `Category${props.index + 1}`}
+      {props.header || `Category ${props.index + 1}`}
     </p>
   )
 }

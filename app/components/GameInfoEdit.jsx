@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button } from 'semantic-ui-react'
 import { fireAuthConnect } from '../firebase'
 import { formatGame } from '../utils'
 
@@ -6,13 +7,16 @@ import GameInfo from './GameInfo'
 import BoardCellDragAndDroppable from './BoardCellDragAndDroppable'
 import HeaderCellEditable from './HeaderCellEditable'
 
+
 const GameInfoEdit = props => {
   return (
     <GameInfo
       cellComponent={BoardCellDragAndDroppable}
       headerComponent={HeaderCellEditable}
       {...props}
-    />
+    >
+      <Button>test</Button>
+    </GameInfo>
   )
 }
 

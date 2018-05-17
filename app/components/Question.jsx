@@ -1,7 +1,7 @@
 import React from 'react'
 import { Item, Label } from 'semantic-ui-react'
 
-const Question = ({ question }) => {
+const Question = ({ question, children }) => {
   return (
     <Item>
         <Item.Content verticalAlign="middle">
@@ -14,11 +14,12 @@ const Question = ({ question }) => {
             <p style={{ paddingLeft: '0.4em' }}>{question.response}</p>
           </div>
           <Item.Extra>
-            {question.tags && Object.keys(question.tags).map(tag => (
+            {/* {question.tags && Object.keys(question.tags).map(tag => (
               <Label key={tag}>{tag}</Label>
-            ))}
+            ))} */}
+            By {question.author && question.author.name}
+            {children}
           </Item.Extra>
-          <Item.Extra>By {question.author && question.author.name}</Item.Extra>
         </Item.Content>
       </Item>
   )
