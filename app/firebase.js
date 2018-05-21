@@ -1,9 +1,6 @@
 import firebase from 'firebase'
 import 'firebase/firestore'
 
-// import withAuth from './spark/auth'
-import connect from './fireConnect'
-
 const config = {
   apiKey: 'AIzaSyAihYdLAeDX7ZqW72avjItnmcuFQdntZN0',
   authDomain: 'peril-game.firebaseapp.com',
@@ -14,15 +11,9 @@ const config = {
 }
 firebase.initializeApp(config)
 
-const db = firebase.firestore()
+export const db = firebase.firestore()
 export const rt = firebase.database()
-const auth = firebase.auth();
-
+export const auth = firebase.auth();
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
-export const fireAuthConnect = connect(db, auth)
-export const fireConnect = connect(db)
-export const authConnect = connect(null, auth)
-
-export const firebaseConnect = connect(rt)
 
 export default firebase
