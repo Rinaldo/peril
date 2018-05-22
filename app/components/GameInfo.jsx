@@ -59,7 +59,10 @@ class GameInfo extends Component {
           {
             selectedQuestion ?
               <Item.Group>
-                <Question question={selectedQuestion}>
+                <Question
+                  question={selectedQuestion}
+                  renderQuestionButton={this.props.renderQuestionButton}
+                >
                   {this.props.children}
                 </Question>
               </Item.Group> :

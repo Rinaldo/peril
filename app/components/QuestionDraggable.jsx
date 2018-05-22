@@ -1,5 +1,4 @@
 import React from 'react'
-import { findDOMNode } from 'react-dom'
 import { Ref } from 'semantic-ui-react'
 import { DragSource } from 'react-dnd'
 import { ItemTypes } from '../utils'
@@ -20,12 +19,10 @@ function collect(connect) {
   }
 }
 
-const DraggableQuestion = props => {
-  const { connectDragSource } = props
+const DraggableQuestion = ({ connectDragSource, question }) => {
   return (
-    /* eslint-disable react/no-find-dom-node */
-    <Ref innerRef={instance => connectDragSource(findDOMNode(instance))}>
-      <Question question={props.question} />
+    <Ref innerRef={instance => connectDragSource(instance)}>
+      <Question question={question} />
     </Ref>
   )
 }

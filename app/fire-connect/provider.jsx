@@ -64,7 +64,7 @@ export const contextConnector = Connector =>
                   listener={listener}
                   dispatchers={dispatchers}
                   {...this.props}
-                  render={stuff => <ConnectedComponent {...stuff} />}
+                  _render={stuff => <ConnectedComponent {...stuff} />}
                 />
               )}
             </fireContext.Consumer>

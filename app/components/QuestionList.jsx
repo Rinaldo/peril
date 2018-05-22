@@ -1,6 +1,6 @@
 import React from 'react'
 import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
-import { fireConnect } from '../firebase'
+import { firestoreConnect } from '../fire-connect'
 
 import QuestionDraggable from './QuestionDraggable'
 
@@ -32,12 +32,12 @@ const Questions = (props) => {
     </div>)
 }
 
-function addListener(component, db) {
-  return db.collection('questions').where('isPublic', '==', true)
+const addListener = (component, db) => (
+  db.collection('questions').where('isPublic', '==', true)
   .onSnapshot(querySnapshot => {
       const docsData = querySnapshot.docs.map(doc => ({ ...doc.data(), docId: doc.id }))
       component.setState({ questions: docsData, isLoaded: true })
   })
-}
+)
 
-export default fireConnect(addListener)(Questions)
+export default firestoreConnect(addListener)(Questions)

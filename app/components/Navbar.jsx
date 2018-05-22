@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Menu } from 'semantic-ui-react'
-import { authConnect, googleProvider } from '../firebase'
+import { firestoreConnect } from '../fire-connect'
+import { googleProvider } from '../firebase'
 import { loginFields, signupFields } from '../utils'
 
 import AuthDropdown from './AuthDropdown'
@@ -36,7 +37,7 @@ const Navbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
   </Menu>
 )
 
-const addDispatchers = (component, db, auth) => ({
+const addDispatchers = ({ props: { auth } }) => ({
   logOut() {
     auth.signOut()
   },
@@ -59,4 +60,4 @@ const addDispatchers = (component, db, auth) => ({
   }
 })
 
-export default authConnect(null, addDispatchers)(Navbar)
+export default firestoreConnect(null, addDispatchers)(Navbar)

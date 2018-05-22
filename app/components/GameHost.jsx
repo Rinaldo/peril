@@ -1,29 +1,65 @@
 import React from 'react'
-import { firebaseConnect } from '../firebase'
+import { Button } from 'semantic-ui-react'
+import { firebaseConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
 // import Board from './Board'
 import GameInfo from './GameInfo'
 import BoardCell from './BoardCell'
 import HeaderCell from './HeaderCell'
+import PlayerList from './PlayerList'
+import SubHeaderHost from './SubHeaderHost'
 
 const GameHost = props => {
-  console.log('rendering host game')
   return props.isLoaded ? (
-    <GameInfo
-      cellComponent={BoardCell}
-      headerComponent={HeaderCell}
-      game={props.gameInfo}
-      isLoaded={props.isLoaded}
-    />
+    <div>
+      <SubHeaderHost user={props.user} />
+      <GameInfo
+        cellComponent={BoardCell}
+        headerComponent={HeaderCell}
+        game={props.gameInfo}
+        isLoaded={props.isLoaded}
+        renderQuestionButton={question => (
+          <Button
+            floated="right"
+            onClick={() => props.sendQuestion(question)}
+          >
+            Send Question to Players
+          </Button>
+        )}
+      >
+      {/* because the buttons are floated to the right, the order they are displayed in is reversed */}
+        <Button floated="right">(placeholder)</Button>
+      </GameInfo>
+      <PlayerList players={props.players} />
+    </div>
   ) : null
 }
 
-function addListener(component, rt) {
-  rt.ref(`games/${component.props.match.params.gameId}`).on('value', snapshot => {
-    const { gameInfo, ...game } = snapshot.val()
-    component.setState({ game, gameInfo: formatGame(gameInfo), isLoaded: true })
+function addListener(component, ref, user) {
+  return ref(`games/${user.uid}`).on('value', snapshot => {
+    if (!snapshot.exists()) {
+      console.log('no game found')
+      return
+    }
+    const { client, host } = snapshot.val()
+    component.setState({
+      // game,
+      gameInfo: formatGame(host.gameInfo),
+      players: client.players || {},
+      responseQueue: client.responseQueue || {},
+      isLoaded: true
+    })
   })
 }
 
-export default firebaseConnect(addListener)(GameHost)
+function addDispatchers(component, ref, user) {
+  return {
+    sendQuestion(question) {
+      ref(`games/${user.uid}/client/currentQuestion`).set(question.prompt)
+      .catch(err => console.log('Error:', err))
+    }
+  }
+}
+
+export default firebaseConnect(addListener, addDispatchers)(GameHost)

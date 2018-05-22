@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from 'semantic-ui-react'
-import { fireAuthConnect } from '../firebase'
+import { firestoreConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
 import GameInfo from './GameInfo'
@@ -15,7 +15,9 @@ const GameInfoEdit = props => {
       headerComponent={HeaderCellEditable}
       {...props}
     >
-      <Button>test</Button>
+      {/* because the buttons are floated to the right, the order they are displayed in is reversed */}
+      <Button floated="right">Delete (placeholder)</Button>
+      <Button floated="right">Edit (placeholder)</Button>
     </GameInfo>
   )
 }
@@ -30,7 +32,7 @@ function addListener(component) {
   })
 }
 
-function addDispatchers(component, db) {
+function addDispatchers(component, db, user) {
   component.gameRef = db
     .collection('gameTemplates')
     .doc(component.props.gameId)
@@ -57,8 +59,8 @@ function addDispatchers(component, db) {
       db.collection('questions').add({
           ...question,
           author: {
-            name: component.state.user.displayName,
-            uid: component.state.user.uid,
+            name: user.displayName,
+            uid: user.uid,
           }
       })
       .then(docRef => docRef.get())
@@ -75,4 +77,4 @@ function addDispatchers(component, db) {
   }
 }
 
-export default fireAuthConnect(addListener, addDispatchers)(GameInfoEdit)
+export default firestoreConnect(addListener, addDispatchers)(GameInfoEdit)

@@ -21,6 +21,19 @@ export const formatGame = game => {
   return formatted
 }
 
+export const stripData = game => {
+  const stripped = { ...game }
+  stripped.categories = {}
+  Object.entries(game.categories).forEach(([categoryKey, category]) => {
+    stripped.categories[categoryKey] = { name: category.name || `Category ${+categoryKey + 1}`, questions: {} }
+    Object.keys(category.questions).forEach(questionKey => {
+      // initializing to false instead of null because you can't store null values in firebase
+      stripped.categories[categoryKey].questions[questionKey] = { answerer: false }
+    })
+  })
+  return stripped
+}
+
 export const equivalent = (left, right) => {
   if (left === right) return true
   if (!left || !right) return false

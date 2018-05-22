@@ -6,28 +6,31 @@ class FirebaseConnect extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this.setRef = this.setRef.bind(this)
     this.dispatchers = typeof this.props.dispatchers === 'function' ?
-      this.props.dispatchers(this, this.props.firebase.ref, this.props.user) : {}
-  }
-
-  setRef(path) {
-    this.ref = this.props.firebase.ref(path)
-    return this.ref
+      this.props.dispatchers(this, this.props.firebase.ref.bind(this.props.firebase), this.props.user) : {}
   }
 
   componentDidMount() {
-    this.props.listener && this.props.listener(this, this.setRef, this.props.user)
+    const spyRef = path => {
+      this.ref = this.props.firebase.ref(path)
+      return this.ref
+    }
+    const getEventType = type => {
+      this.eventType = type
+      return type
+    }
+    this.callback = this.props.listener && this.props.listener(this, spyRef, this.props.user, getEventType)
   }
 
   componentWillUnmount() {
-    this.ref && this.ref.off()
+    if (this.ref && this.eventType) this.ref.off(this.eventType, this.callback)
+    else if (this.ref) this.ref.off()
   }
 
   render() {
     return (
         <React.Fragment>
-          {this.props.render({ ...this.dispatchers, ...this.props, ...this.state })}
+          {this.props._render({ ...this.dispatchers, ...this.props, ...this.state })}
         </React.Fragment>
     )
   }
