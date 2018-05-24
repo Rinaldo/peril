@@ -15,6 +15,7 @@ export const formatGame = game => {
     for (let j = 0; j < game.height; j++) {
       if (game.categories && game.categories[i] && game.categories[i].questions[j]) {
         formatted.rows[j][i] = game.categories[i].questions[j]
+        formatted.rows[j][i].points = (j + 1) * formatted.multiplier
       }
     }
   }

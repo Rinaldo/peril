@@ -1,7 +1,7 @@
 import React from 'react'
 import { Item, Label } from 'semantic-ui-react'
 
-const Question = ({ question, children, renderQuestionButton }) => {
+const Question = ({ question, children }) => {
   return (
     <Item>
       <Item.Content verticalAlign="middle">
@@ -19,7 +19,6 @@ const Question = ({ question, children, renderQuestionButton }) => {
           ))} */}
           By {question.author && question.author.name}
           {children}
-          {renderQuestionButton(question)}
         </Item.Extra>
       </Item.Content>
     </Item>

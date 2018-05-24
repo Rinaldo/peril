@@ -1,25 +1,60 @@
 import React from 'react'
-import { Button } from 'semantic-ui-react'
+import { Button, Loader } from 'semantic-ui-react'
 import { firestoreConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
 import GameInfo from './GameInfo'
 import BoardCellDragAndDroppable from './BoardCellDragAndDroppable'
 import HeaderCellEditable from './HeaderCellEditable'
+import SelectedEdit from './SelectedEdit'
 
 
 const GameInfoEdit = props => {
-  return (
+  return props.isLoaded ? (
     <GameInfo
-      cellComponent={BoardCellDragAndDroppable}
-      headerComponent={HeaderCellEditable}
       {...props}
-    >
-      {/* because the buttons are floated to the right, the order they are displayed in is reversed */}
-      <Button floated="right">Delete (placeholder)</Button>
-      <Button floated="right">Edit (placeholder)</Button>
-    </GameInfo>
-  )
+      renderCell={(cell, multiplier, currentCoords, otherProps) => (
+        <BoardCellDragAndDroppable
+          cell={cell}
+          multiplier={multiplier}
+          currentCoords={currentCoords}
+          {...otherProps}
+        />
+      )}
+      renderHeader={(header, index, otherProps) => (
+        <HeaderCellEditable
+          header={header}
+          index={index}
+          {...otherProps}
+        />
+      )}
+      renderQuestionInfo={({ selectedCoords, locked }) => {
+        const [row, col] = selectedCoords
+        const valid = row !== null && col !== null
+        const question = props.game && valid ? props.game.rows[row][col] : null
+        return (
+        <SelectedEdit
+          question={question}
+          coords={selectedCoords}
+          valid={valid}
+          locked={locked}
+          writeQuestion={props.writeQuestion}
+          addQuestionToGame={props.addQuestionToGame}
+        >
+          <Button
+            floated="right"
+            content="Remove From Game (placeholder)"
+          />
+          <Button
+            floated="right"
+            content="Edit (placeholder)"
+            //should open up edit box in same place
+          />
+        </SelectedEdit>
+      )}
+    }
+    />
+  )  : <Loader />
 }
 
 function addListener(component) {
@@ -49,27 +84,25 @@ function addDispatchers(component, db, user) {
     swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
       const keyStringA = `categories.${aCol}.questions.${aRow}`
       const keyStringB = `categories.${bCol}.questions.${bRow}`
-      component.gameRef.update({
+      return component.gameRef.update({
         [keyStringA]: questionB,
         [keyStringB]: questionA
       })
       .catch(err => console.error('Error updating questions', err))
     },
-    writeQuestionAndAddToGame(question, row, col) {
-      db.collection('questions').add({
+    writeQuestion(question) {
+      return db.collection('questions').add({
           ...question,
           author: {
             name: user.displayName,
             uid: user.uid,
           }
       })
-      .then(docRef => docRef.get())
-      .then(doc => component.dispatchers.addQuestionToGame(doc.data(), row, col))
       .catch(err => console.error('Error writing question', err))
     },
     setHeader(header, col) {
       const keyString = `categories.${col}.name`
-      component.gameRef.update({
+      return component.gameRef.update({
         [keyString]: header
       })
       .catch(err => console.error('Error updating header', err))

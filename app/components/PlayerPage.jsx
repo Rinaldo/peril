@@ -7,13 +7,45 @@ import NameForm from './PlayerTempForm'
 
 const PlayerPage = props => {
   console.log(props)
-  return (
-    <div>
-      <Button onClick={props.test}>test</Button>
-      <Button onClick={props.logOut}>Log out</Button>
-      {!props.user && <NameForm submit={props.joinGame} />}
-    </div>
-  )
+  const inGame = props.isLoaded && props.user && props.players[props.user.uid] && props.players[props.user.uid].active
+  return props.isLoaded ?
+    (
+      <div>
+        {
+          inGame ?
+          <div>
+            {
+              props.game.started ?
+              <div>
+                {
+                  props.game.currentQuestion ?
+                  <div>
+                    {props.game.currentQuestion}
+                    <Button onClick={props.answerQuestion}>Buzz In</Button>
+                  </div>
+                  :
+                  <div>
+                    Waiting for Question
+                  </div>
+                }
+              </div>
+              :
+              <div>
+                Waiting for host to begin game
+              </div>
+            }
+            <Button onClick={props.leaveGame}>Leave Game</Button>
+          </div>
+          :
+          <div>
+            <p>Welcome to Peril</p>
+            <NameForm submit={props.joinGame} />
+          </div>
+        }
+      </div>
+    )
+      :
+    null
 }
 
 function addListener(component, ref) {
@@ -44,19 +76,22 @@ function addDispatchers(component, ref) {
         return ref(`games/${component.props.match.params.hostId}/client/players/${user.uid}`).set({
           name,
           score: 0,
+          active: true,
         })
       })
       .catch(err => console.error('Error:', err))
     },
-    logOut() {
-      component.props.auth.signOut()
+    answerQuestion() {
+      ref(`games/${component.props.match.params.hostId}/client/responseQueue/${component.props.user.uid}`).set(component.props.firebaseTimestamp)
+      .catch(err => console.error('Error:', err))
     },
-    test() {
-      ref(`games/${component.props.match.params.hostId}/client/players`).push({
-        name: 'testing',
-        score: 0,
+    leaveGame() {
+      ref(`games/${component.props.match.params.hostId}/client/players/${component.props.user.uid}`).update({
+        active: false
       })
-    }
+      .catch(err => console.error('Error:', err))
+      component.props.user.isAnonymous && component.props.auth.signOut()
+    },
   }
 }
 

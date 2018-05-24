@@ -12,6 +12,8 @@ export default class Provider extends Component {
       auth: this.props.auth,
       firebase: this.props.firebase,
       firestore: this.props.firestore,
+      firebaseTimestamp: this.props.firebaseTimestamp,
+      firestoreTimestamp: this.props.firestoreTimestamp,
     }
     // Provider takes a boolean prop that changes the auth listener
     this.onChange = this.props.onIdTokenChanged ? 'onIdTokenChanged' : 'onAuthStateChanged'
@@ -22,6 +24,8 @@ export default class Provider extends Component {
     if (prevState.auth !== nextProps.auth) newState.auth = nextProps.auth
     if (prevState.firebase !== nextProps.firebase) newState.firebase = nextProps.firebase
     if (prevState.firestore !== nextProps.firestore) newState.firestore = nextProps.firestore
+    if (prevState.firebaseTimestamp !== nextProps.firebaseTimestamp) newState.firebaseTimestamp = nextProps.firebaseTimestamp
+    if (prevState.firestoreTimestamp !== nextProps.firestoreTimestamp) newState.firestoreTimestamp = nextProps.firestoreTimestamp
     return Object.keys(newState).length ? newState : null
   }
 

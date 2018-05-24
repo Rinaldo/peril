@@ -3,7 +3,7 @@ import { Table } from 'semantic-ui-react'
 
 
 /* eslint-disable react/no-array-index-key */
-const Board = ({ cellComponent, headerComponent, clearQuestion, game, ...propsToPass }) => {
+const Board = ({ renderCell, renderHeader, clearQuestion, game, ...propsToPass }) => {
     // console.log('game', game)
     return (
       <Table fixed unstackable size="large" attached>
@@ -11,12 +11,7 @@ const Board = ({ cellComponent, headerComponent, clearQuestion, game, ...propsTo
           <Table.Row textAlign="center">
             {game.headers.map((header, headerIndex) => (
               <Table.HeaderCell style={{ padding: '0px' }} key={`row-${headerIndex}`}>
-              {React.createElement(headerComponent, { header, index: headerIndex, ...propsToPass })}
-                {/* <HeaderCell
-                  header={header}
-                  index={headerIndex}
-                  {...propsToPass}
-                /> */}
+                {renderHeader(header, headerIndex, propsToPass)}
               </Table.HeaderCell>
             ))}
           </Table.Row>
@@ -26,14 +21,7 @@ const Board = ({ cellComponent, headerComponent, clearQuestion, game, ...propsTo
             <Table.Row key={`row-${rowIndex}`} textAlign="center">
               {row.map((cell, colIndex) => (
                 <Table.Cell style={{ padding: '0px' }} key={`cell-${rowIndex}:${colIndex}`}>
-                {React.createElement(cellComponent, { cell, multiplier: game.multiplier, currentCoords: [rowIndex, colIndex], ...propsToPass })}
-                  {/* <BoardCell
-                    cell={cell}
-                    multiplier={game.multiplier}
-                    row={rowIndex}
-                    col={colIndex}
-                    {...propsToPass}
-                  /> */}
+                  {renderCell(cell, game.multiplier, [rowIndex, colIndex], propsToPass)}
                 </Table.Cell>
               ))}
             </Table.Row>

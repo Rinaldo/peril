@@ -6,7 +6,7 @@ const SubHeader = props => {
   return (
     <Segment attached clearing>
       {`Players can join at ${window.location.host}/play/${props.user.uid}`}
-      <Button floated="right">Start Game (Placeholder)</Button>
+      <Button floated="right" onClick={props.startGame}>Start Game</Button>
     </Segment>
   )
 }
