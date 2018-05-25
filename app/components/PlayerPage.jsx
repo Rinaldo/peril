@@ -8,6 +8,7 @@ import NameForm from './PlayerTempForm'
 const PlayerPage = props => {
   console.log(props)
   const inGame = props.isLoaded && props.user && props.players[props.user.uid] && props.players[props.user.uid].active
+  const answered = props.isLoaded && props.user && props.responseQueue[props.user.uid]
   return props.isLoaded ?
     (
       <div>
@@ -18,10 +19,15 @@ const PlayerPage = props => {
               props.game.started ?
               <div>
                 {
-                  props.game.currentQuestion ?
+                  props.game.currentQuestion && !answered ?
                   <div>
-                    {props.game.currentQuestion}
+                    {props.game.currentQuestion.prompt}
                     <Button onClick={props.answerQuestion}>Buzz In</Button>
+                  </div>
+                  :
+                  props.game.currentQuestion && answered ?
+                  <div>
+                    Submitted
                   </div>
                   :
                   <div>

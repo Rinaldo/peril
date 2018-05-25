@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, List } from 'semantic-ui-react'
 
 const ResponseQueue = props => {
-  const playerResponses = Object.keys(props.responseQueue).map(uid => ({ uid, name: props.players[uid].name, time: props.responseQueue[uid] })).sort((a, b) => a.time - b.time)
+  const playerResponses = Object.keys(props.responseQueue).map(uid => ({ uid, name: props.players[uid].name, score: props.players[uid].score, time: props.responseQueue[uid] })).sort((a, b) => a.time - b.time)
   return (
     <React.Fragment>
     responses go here
@@ -16,6 +16,11 @@ const ResponseQueue = props => {
               compact
               content="correct"
               onClick={() => props.markAsAnswered(playerResponse, props.currentQuestion)}
+            />
+            <Button
+              compact
+              content="incorrect"
+              onClick={() => props.incorrectAnswer(playerResponse, props.currentQuestion)}
             />
           </List.Content>
         </List.Item>
