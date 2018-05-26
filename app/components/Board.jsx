@@ -4,7 +4,6 @@ import { Table } from 'semantic-ui-react'
 
 /* eslint-disable react/no-array-index-key */
 const Board = ({ renderCell, renderHeader, clearQuestion, game, ...propsToPass }) => {
-    // console.log('game', game)
     return (
       <Table fixed unstackable size="large" attached>
         <Table.Header>

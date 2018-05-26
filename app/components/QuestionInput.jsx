@@ -61,7 +61,6 @@ class QuestionInput extends Component {
           defaultChecked={true}
           name="isPublic"
           label="Make my question public"
-          checked={this.state.isPublic}
           onChange={this.handleChange}
         />
         <Form.Button

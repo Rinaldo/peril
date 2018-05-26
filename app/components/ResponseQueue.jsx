@@ -2,25 +2,24 @@ import React from 'react'
 import { Button, List } from 'semantic-ui-react'
 
 const ResponseQueue = props => {
-  const playerResponses = Object.keys(props.responseQueue).map(uid => ({ uid, name: props.players[uid].name, score: props.players[uid].score, time: props.responseQueue[uid] })).sort((a, b) => a.time - b.time)
   return (
     <React.Fragment>
     responses go here
     <List>
-      {playerResponses.map(playerResponse => (
-        <List.Item key={playerResponse.uid}>
+      {props.responses.map(response => (
+        <List.Item key={response.uid}>
           {/* <List.Icon name='users' /> */}
           <List.Content>
-            {playerResponse.name}
+            {response.name}
             <Button
               compact
               content="correct"
-              onClick={() => props.markAsAnswered(playerResponse, props.currentQuestion)}
+              onClick={() => props.markAsCorrect(response)}
             />
             <Button
               compact
               content="incorrect"
-              onClick={() => props.incorrectAnswer(playerResponse, props.currentQuestion)}
+              onClick={() => props.markAsIncorrect(response)}
             />
           </List.Content>
         </List.Item>

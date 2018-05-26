@@ -33,24 +33,26 @@ const GameInfoEdit = props => {
         const valid = row !== null && col !== null
         const question = props.game && valid ? props.game.rows[row][col] : null
         return (
-        <SelectedEdit
-          question={question}
-          coords={selectedCoords}
-          valid={valid}
-          locked={locked}
-          writeQuestion={props.writeQuestion}
-          addQuestionToGame={props.addQuestionToGame}
-        >
-          <Button
-            floated="right"
-            content="Remove From Game (placeholder)"
-          />
-          <Button
-            floated="right"
-            content="Edit (placeholder)"
-            //should open up edit box in same place
-          />
-        </SelectedEdit>
+          <SelectedEdit
+            question={question}
+            coords={selectedCoords}
+            valid={valid}
+            locked={locked}
+            writeQuestion={props.writeQuestion}
+            addQuestionToGame={props.addQuestionToGame}
+          >
+            <Button
+              floated="right"
+              content="Remove From Game"
+              // should unlock cell
+              onClick={() => props.removeQuestionFromGame(row, col)}
+            />
+            {/* <Button
+              floated="right"
+              content="Edit"
+              //should open up edit box in same place
+            /> */}
+          </SelectedEdit>
       )}
     }
     />
@@ -81,9 +83,9 @@ function addDispatchers(component, db, user) {
       })
       .catch(err => console.error('Error adding question', err))
     },
-    swapQuestions(questionA, bRow, bCol, questionB, aRow, aCol) {
-      const keyStringA = `categories.${aCol}.questions.${aRow}`
-      const keyStringB = `categories.${bCol}.questions.${bRow}`
+    swapQuestions(questionA, rowB, colB, questionB, rowA, colA) {
+      const keyStringA = `categories.${colA}.questions.${rowA}`
+      const keyStringB = `categories.${colB}.questions.${rowB}`
       return component.gameRef.update({
         [keyStringA]: questionB,
         [keyStringB]: questionA
@@ -106,6 +108,13 @@ function addDispatchers(component, db, user) {
         [keyString]: header
       })
       .catch(err => console.error('Error updating header', err))
+    },
+    removeQuestionFromGame(row, col) {
+      const keyString = `categories.${col}.questions.${row}`
+      return component.gameRef.update({
+        [keyString]: null
+      })
+      .catch(err => console.error('Error removing question', err))
     },
   }
 }
