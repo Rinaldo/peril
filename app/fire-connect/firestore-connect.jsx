@@ -15,10 +15,8 @@ class FirestoreConnect extends React.Component {
     if (this.props.listeners) {
       const listenerResult = this.props.listeners(this, this.props.firestore, this.props.user)
       if (typeof listenerResult === 'function') {
-        console.log('single listener:', listenerResult)
         this.unsubscribers = [listenerResult]
       } else if (listenerResult && typeof listenerResult === 'object') {
-        console.log('multiple listeners:', listenerResult)
         Object.values(listenerResult).forEach(listener => {
           this.unsubscribers.push(listener())
         })

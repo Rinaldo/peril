@@ -29,7 +29,6 @@ class FirebaseConnect extends React.Component {
   componentDidMount() {
     if (this.props.listeners) {
       const listenerResult = this.props.listeners(this, this.spyRef, this.props.user, this.setEventType)
-
       if (typeof listenerResult === 'function') {
         this.callbacks.push(listenerResult)
         if (!this.eventTypes.length) this.eventTypes.push(null)
