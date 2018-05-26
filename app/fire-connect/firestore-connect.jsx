@@ -8,70 +8,39 @@ class FirestoreConnect extends React.Component {
     this.state = {}
     this.dispatchers = typeof this.props.dispatchers === 'function' ?
       this.props.dispatchers(this, this.props.firestore, this.props.user) : {}
+    this.unsubscribers = []
   }
 
   componentDidMount() {
-    this.unsubscribe = this.props.listener && this.props.listener(this, this.props.firestore, this.props.user)
+    if (this.props.listeners) {
+      const listenerResult = this.props.listeners(this, this.props.firestore, this.props.user)
+      if (typeof listenerResult === 'function') {
+        console.log('single listener:', listenerResult)
+        this.unsubscribers = [listenerResult]
+      } else if (listenerResult && typeof listenerResult === 'object') {
+        console.log('multiple listeners:', listenerResult)
+        Object.values(listenerResult).forEach(listener => {
+          this.unsubscribers.push(listener())
+        })
+      } else {
+        throw new TypeError('return value of addListeners must be either a function (for one listener) or object (for multiple listeners)')
+      }
+    }
   }
 
   componentWillUnmount() {
-    this.unsubscribe && this.unsubscribe()
+    this.unsubscribers.forEach(unsubscribe => {
+      unsubscribe()
+    })
   }
 
   render() {
     return (
         <React.Fragment>
-          {this.props._render({ ...this.dispatchers, ...this.props, ...this.state })}
+          {this.props.__render({ ...this.dispatchers, ...this.props, ...this.state })}
         </React.Fragment>
     )
   }
 }
 
 export default contextConnector(FirestoreConnect)
-
-
-// inspired by https://github.com/reactjs/react-redux and https://github.com/FullstackAcademy/firebones
-
-// import React from 'react'
-
-// export default (db, auth) => (listener, dispatchers) => Component => class fireConnect extends React.Component {
-//   constructor(props) {
-//     super(props)
-//     this.state = {}
-//     this.dispatchers = typeof dispatchers === 'function' ? dispatchers(this, db, auth) : {}
-//   }
-
-//   componentDidMount() {
-//     if (auth && listener) {
-//       this.unsubscribeAuth = auth.onIdTokenChanged(user =>
-//         this.setState({ user }, () => {
-//           if (!this.unsubscribeDb) this.unsubscribeDb = listener(this, db)
-//         })
-//       )
-//     } else if (auth) {
-//       this.unsubscribeAuth = auth.onIdTokenChanged(user => this.setState({ user }))
-//     } else if (listener) {
-//       this.unsubscribeDb = listener(this, db, auth)
-//     }
-//     // this.unsubscribeAuth = auth && auth.onIdTokenChanged(user => this.setState({ user }))
-//     // this.unsubscribeDb = listener && listener(this, db, auth)
-//   }
-
-//   componentWillUnmount() {
-//     this.unsubscribeAuth && this.unsubscribeAuth()
-//     this.unsubscribeDb && this.unsubscribeDb()
-//   }
-
-//   render() {
-//     return (
-//       <Component
-//         // should connected component have access to db and auth?
-//         // db={db}
-//         // auth={auth}
-//         {...this.dispatchers}
-//         {...this.props}
-//         {...this.state}
-//       />
-//     )
-//   }
-// }

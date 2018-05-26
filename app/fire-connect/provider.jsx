@@ -56,7 +56,7 @@ export default class Provider extends Component {
 /* eslint-disable react/prefer-stateless-function */
 /* returning a class function so it has a display name */
 export const contextConnector = Connector =>
-  (listener, dispatchers) =>
+  (listeners, dispatchers) =>
     ConnectedComponent =>
       class WithContext extends React.Component {
         render() {
@@ -65,10 +65,10 @@ export const contextConnector = Connector =>
               {context => (
                 <Connector
                   {...context}
-                  listener={listener}
+                  listeners={listeners}
                   dispatchers={dispatchers}
                   {...this.props}
-                  _render={stuff => <ConnectedComponent {...stuff} />}
+                  __render={stuff => <ConnectedComponent {...stuff} />}
                 />
               )}
             </fireContext.Consumer>
