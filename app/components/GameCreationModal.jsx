@@ -80,7 +80,6 @@ class QuestionInput extends Component {
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button negative icon="remove" labelPosition="right" content="Cancel (not really)" />
           <Button positive icon="checkmark" labelPosition="right" content="Create Game" onClick={this.handleSubmit} />
         </Modal.Actions>
       </Modal>

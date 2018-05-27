@@ -11,8 +11,10 @@ class WriteAndAddQuestion extends Component {
 
   submit(question) {
     this.props.writeQuestion(question)
-    .then(doc => doc.get())
+    .then(docRef => docRef.get())
+    .then(doc => doc.data())
     .then(createdQuestion => this.props.addQuestionToGame(createdQuestion, ...this.props.coords))
+    .catch(err => console.error('Error adding question', err))
   }
 
   render() {

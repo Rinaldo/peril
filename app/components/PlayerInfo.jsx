@@ -48,28 +48,30 @@ function addDispatchers(component, ref, user) {
       ref(`games/${user.uid}/client/players/${player.uid}`).remove()
     },
     markAsCorrect(player) {
-      const { row, col, points } = component.state.currentQuestion
+      const { row, col, points, double } = component.state.currentQuestion
       // should be a transaction
       ref(`games/${user.uid}/client/players/${player.uid}`).update({
-        score: player.score + points
+        score: player.score + (double ? points * 2 : points)
       })
       ref(`games/${user.uid}/client/gameInfo/categories/${col}/questions/${row}`).update({
-        answerer: player.uid
+        answerer: player.uid,
       })
       ref(`games/${user.uid}/host/gameInfo/categories/${col}/questions/${row}`).update({
-        answerer: player.uid
+        answerer: player.uid,
       })
       ref(`games/${user.uid}/client/currentQuestion`).remove()
       ref(`games/${user.uid}/client/responseQueue`).remove()
     },
     markAsIncorrect(player) {
-      const { points } = component.state.currentQuestion
+      const { points, double } = component.state.currentQuestion
       // should be a transaction
       ref(`games/${user.uid}/client/players/${player.uid}`).update({
-        score: player.score - points
+        score: player.score - (double ? points * 2 : points)
       })
+      if (component.state.responses.length === 1) {
+        ref(`games/${user.uid}/client/currentQuestion`).remove()
+      }
       ref(`games/${user.uid}/client/responseQueue/${player.uid}`).remove()
-      // if no responses left, clear currentQuestion
     }
   }
 }

@@ -15,6 +15,7 @@ class GameInfo extends Component {
     this.selectQuestion = this.selectQuestion.bind(this)
     this.toggleLock = this.toggleLock.bind(this)
     this.clearQuestion = this.clearQuestion.bind(this)
+    this.unlock = this.unlock.bind(this)
   }
 
   getCell(event) {
@@ -38,6 +39,9 @@ class GameInfo extends Component {
   clearQuestion() {
     if (!this.state.locked) this.setState({ selectedCoords: [null, null] })
   }
+  unlock() {
+    this.setState({ locked: false })
+  }
 
   render() {
     // const [selectedRow, selectedCol] = this.state.selectedCoords
@@ -52,7 +56,7 @@ class GameInfo extends Component {
           toggleLock={this.toggleLock}
           clearQuestion={this.clearQuestion}
         />
-        {this.props.renderQuestionInfo(this.state)}
+        {this.props.renderQuestionInfo(this.state, this.unlock)}
       </div>
       )
   }

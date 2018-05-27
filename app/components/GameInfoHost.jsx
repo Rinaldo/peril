@@ -3,14 +3,11 @@ import { Button } from 'semantic-ui-react'
 import { firebaseConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
-// import Board from './Board'
 import GameInfo from './GameInfo'
 import BoardCell from './BoardCell'
 import HeaderCell from './HeaderCell'
-import PlayerList from './PlayerList'
-import SubHeaderHost from './SubHeaderHost'
 import SelectedHost from './SelectedHost'
-import ResponseQueue from './ResponseQueue'
+
 
 const GameHost = props => {
   return props.isLoaded ? (
@@ -42,12 +39,12 @@ const GameHost = props => {
             question={question}
             valid={valid}
           >
-          <Button
-            floated="right"
-            content="Send Question to Players (placeholder)"
-            onClick={() => props.sendQuestion(question, row, col)}
-            // disabled if game hasn't started or there is a currentQuestion
-          />
+            <Button
+              floated="right"
+              content="Send Question to Players"
+              onClick={() => props.sendQuestion(question, row, col)}
+              disabled={!!props.currentQuestion || !props.started || (question && question.asked)}
+            />
           </SelectedHost>
         )}
       }
@@ -57,26 +54,41 @@ const GameHost = props => {
 }
 
 function addListener(component, ref, user) {
-  return ref(`games/${user.uid}/host`).on('value', snapshot => {
-    if (!snapshot.exists()) {
-      console.log('no game found')
-      return
-    }
-    const { gameInfo } = snapshot.val()
-    component.setState({
-      gameInfo: formatGame(gameInfo),
-      isLoaded: true
+  return {
+    host: () => ref(`games/${user.uid}/host`).on('value', snapshot => {
+      if (!snapshot.exists()) {
+        console.log('no game found')
+        return
+      }
+      const { gameInfo } = snapshot.val()
+      component.setState({
+        gameInfo: formatGame(gameInfo),
+        isLoaded: true
+      })
+    }),
+    currentQuestion: () => ref(`games/${user.uid}/client/currentQuestion`).on('value', snapshot => {
+      component.setState({ currentQuestion: snapshot.val() })
+    }),
+    started: () => ref(`games/${user.uid}/client/started`).on('value', snapshot => {
+      component.setState({ started: snapshot.val() })
     })
-  })
+  }
 }
 
 function addDispatchers(component, ref, user) {
   return {
     sendQuestion(question, row, col) {
       console.log(question)
+      ref(`games/${user.uid}/client/gameInfo/categories/${col}/questions/${row}`).update({
+        asked: true
+      })
+      ref(`games/${user.uid}/host/gameInfo/categories/${col}/questions/${row}`).update({
+        asked: true
+      })
       ref(`games/${user.uid}/client/currentQuestion`).set({
         prompt: question.prompt,
         points: question.points,
+        double: question.double || null,
         row,
         col,
       })

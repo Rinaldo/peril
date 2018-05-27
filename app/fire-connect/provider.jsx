@@ -25,7 +25,7 @@ export default class Provider extends Component {
     if (prevState.firebase !== nextProps.firebase) newState.firebase = nextProps.firebase
     if (prevState.firestore !== nextProps.firestore) newState.firestore = nextProps.firestore
     if (prevState.firebaseTimestamp !== nextProps.firebaseTimestamp) newState.firebaseTimestamp = nextProps.firebaseTimestamp
-    if (prevState.firestoreTimestamp !== nextProps.firestoreTimestamp) newState.firestoreTimestamp = nextProps.firestoreTimestamp
+    if (prevState.firestoreFieldValue !== nextProps.firestoreFieldValue) newState.firestoreFieldValue = nextProps.firestoreFieldValue
     return Object.keys(newState).length ? newState : null
   }
 

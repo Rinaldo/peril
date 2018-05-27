@@ -28,7 +28,7 @@ const GameInfoEdit = props => {
           {...otherProps}
         />
       )}
-      renderQuestionInfo={({ selectedCoords, locked }) => {
+      renderQuestionInfo={({ selectedCoords, locked }, unlock) => {
         const [row, col] = selectedCoords
         const valid = row !== null && col !== null
         const question = props.game && valid ? props.game.rows[row][col] : null
@@ -44,14 +44,18 @@ const GameInfoEdit = props => {
             <Button
               floated="right"
               content="Remove From Game"
-              // should unlock cell
-              onClick={() => props.removeQuestionFromGame(row, col)}
+              onClick={() => {
+                props.removeQuestionFromGame(row, col)
+                unlock()
+              }}
             />
-            {/* <Button
+            <Button
               floated="right"
-              content="Edit"
-              //should open up edit box in same place
-            /> */}
+              content={question && question.double ? 'Remove Daily Double' : 'Make Daily Double'}
+              onClick={() => {
+                props.setDouble(row, col, question.double)
+              }}
+            />
           </SelectedEdit>
       )}
     }
@@ -77,6 +81,7 @@ function addDispatchers(component, db, user) {
     .doc('info')
   return {
     addQuestionToGame(question, row, col) {
+      console.log('​addQuestionToGame -> question', row, col, question);
       const keyString = `categories.${col}.questions.${row}`
       return component.gameRef.update({
         [keyString]: question
@@ -115,6 +120,13 @@ function addDispatchers(component, db, user) {
         [keyString]: null
       })
       .catch(err => console.error('Error removing question', err))
+    },
+    setDouble(row, col, status) {
+      const keyString = `categories.${col}.questions.${row}.double`
+      return component.gameRef.update({
+        [keyString]: !status
+      })
+      .catch(err => console.error('Error changing double status', err))
     },
   }
 }

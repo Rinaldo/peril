@@ -26,7 +26,7 @@ class Main extends Component {
           <Switch>
             <Route path="/play/:hostId" component={PlayerPage} />
             {
-              this.props.user ?
+              this.props.user && !this.props.user.isAnonymous ?
               <Switch>
                 <Route exact path="/" render={() => <Redirect to="/home" />} />
                 <Route path="/home" component={Home} />

@@ -14,7 +14,7 @@ const BoardCell = ({
   // console.log('boardCell props', [currentRow, currentCol])
   return (
     <div
-      style={{ padding: '1em' }}
+      style={{ padding: '1em', fontWeight: cell && cell.double ? 'bold' : 'normal' }}
       className={
         (currentRow === selectedRow &&
           currentCol === selectedCol &&
