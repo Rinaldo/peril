@@ -21,11 +21,9 @@ export default class Provider extends Component {
   // Provider's props shouldn't change, but this and componentDidUpdate are here just in case
   static getDerivedStateFromProps(nextProps, prevState) {
     const newState = {}
-    if (prevState.auth !== nextProps.auth) newState.auth = nextProps.auth
-    if (prevState.firebase !== nextProps.firebase) newState.firebase = nextProps.firebase
-    if (prevState.firestore !== nextProps.firestore) newState.firestore = nextProps.firestore
-    if (prevState.firebaseTimestamp !== nextProps.firebaseTimestamp) newState.firebaseTimestamp = nextProps.firebaseTimestamp
-    if (prevState.firestoreFieldValue !== nextProps.firestoreFieldValue) newState.firestoreFieldValue = nextProps.firestoreFieldValue
+    Object.keys(prevState).forEach(key => {
+      if (prevState[key] !== nextProps[key]) newState[key] = nextProps[key]
+    })
     return Object.keys(newState).length ? newState : null
   }
 
