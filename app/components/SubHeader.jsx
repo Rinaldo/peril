@@ -1,17 +1,21 @@
 import React from 'react'
-import { Segment, Header, Button } from 'semantic-ui-react'
+import { Segment, Header, Button, Loader } from 'semantic-ui-react'
 import { firestoreConnect } from '../fire-connect'
 import { stripData } from '../utils'
 
 
 const SubHeader = props => {
-  return props.game ? (
-    <Segment attached clearing>
-      <Header>{props.game.title}</Header>
-      {props.game.description}
-      <Button floated="right" onClick={props.createGameInstance}>Host Game</Button>
-    </Segment>
-  ) : null
+  return (
+    <div style={{ minHeight: '60px' }}>
+      {props.isLoaded ?
+      <Segment attached clearing>
+        <Header>{props.game.title}</Header>
+        {props.game.description}
+        <Button floated="right" onClick={props.createGameInstance}>Host Game</Button>
+      </Segment>
+      : <Loader active inline="centered" />}
+    </div>
+  )
 }
 
 const addListener = (component, db) => (

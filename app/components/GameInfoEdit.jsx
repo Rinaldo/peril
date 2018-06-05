@@ -28,18 +28,14 @@ const GameInfoEdit = props => {
           {...otherProps}
         />
       )}
-      renderQuestionInfo={({ selectedCoords, locked }, unlock) => {
+      renderQuestionInfo={({ selectedCoords }, unlock) => {
         const [row, col] = selectedCoords
         const valid = row !== null && col !== null
         const question = props.game && valid ? props.game.rows[row][col] : null
         return (
           <SelectedEdit
             question={question}
-            coords={selectedCoords}
             valid={valid}
-            locked={locked}
-            writeQuestion={props.writeQuestion}
-            addQuestionToGame={props.addQuestionToGame}
           >
             <Button
               floated="right"
@@ -60,7 +56,7 @@ const GameInfoEdit = props => {
       )}
     }
     />
-  )  : <Loader />
+  )  : <Loader active />
 }
 
 function addListener(component) {

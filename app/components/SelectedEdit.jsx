@@ -2,10 +2,9 @@ import React from 'react'
 import { Item, Segment } from 'semantic-ui-react'
 
 import Question from './Question'
-import WriteAndAddQuestion from './WriteAndAddQuestion'
 
 
-const SelectedEdit = ({ question, coords, valid, locked, writeQuestion, addQuestionToGame, children }) => {
+const SelectedEdit = ({ question, valid, children }) => {
   return (
     <Segment attached>
     {
@@ -16,14 +15,6 @@ const SelectedEdit = ({ question, coords, valid, locked, writeQuestion, addQuest
             {children}
           </Question>
         </Item.Group> :
-
-      // selected an empty cell
-      (valid && locked) ?
-        <WriteAndAddQuestion
-          writeQuestion={writeQuestion}
-          addQuestionToGame={addQuestionToGame}
-          coords={coords}
-        /> :
 
       // hovering over an empty cell
       (valid) ?

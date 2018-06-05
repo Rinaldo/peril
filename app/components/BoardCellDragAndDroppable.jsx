@@ -3,6 +3,7 @@ import { DragSource, DropTarget } from 'react-dnd'
 import { ItemTypes } from '../utils'
 
 import BoardCell from './BoardCell'
+import BoardCellModal from './BoardCellModal'
 
 
 const cellTarget = {
@@ -46,7 +47,7 @@ function collectDrag(connect) {
 const BoardCellDragAndDroppable = ({ connectDropTarget, connectDragSource, ...propsToPass }) => {
   return connectDragSource(connectDropTarget(
     <div>
-      <BoardCell {...propsToPass} />
+      {propsToPass.cell ? <BoardCell {...propsToPass} /> : <BoardCellModal initialState={{ isPublic: true }} {...propsToPass} />}
     </div>
   ))
 }

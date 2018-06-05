@@ -19,27 +19,33 @@ class Main extends Component {
   }
 
   render() {
-    return this.props.user !== undefined ? (
-      <Router>
-        <Fragment>
-          <Navbar />
-          <Switch>
-            <Route path="/play/:hostId" component={PlayerPage} />
-            {
-              this.props.user && !this.props.user.isAnonymous ?
+    return (
+      <div style={{height: '100vh', width: '100vw'}}>
+        {this.props.user !== undefined ?
+        <Router>
+          <Fragment>
+            <Navbar />
+            <div style={{height: 'calc(100% - 48px)'}}>
               <Switch>
-                <Route exact path="/" render={() => <Redirect to="/home" />} />
-                <Route path="/home" component={Home} />
-                <Route path="/host" component={GameHost} />
-                <Route path="/games/:gameId" component={GameCreation} />
+                <Route path="/play/:hostId" component={PlayerPage} />
+                {
+                  this.props.user && !this.props.user.isAnonymous ?
+                  <Switch>
+                    <Route exact path="/" render={() => <Redirect to="/home" />} />
+                    <Route path="/home" component={Home} />
+                    <Route path="/host" component={GameHost} />
+                    <Route path="/games/:gameId" component={GameCreation} />
+                  </Switch>
+                  :
+                  <Route component={SplashPage} />
+                }
               </Switch>
-              :
-              <Route component={SplashPage} />
-            }
-          </Switch>
-        </Fragment>
-      </Router>
-    ) : <Loader />
+            </div>
+          </Fragment>
+        </Router>
+        : <Loader active />}
+      </div>
+    )
   }
 }
 

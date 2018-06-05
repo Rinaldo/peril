@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from 'semantic-ui-react'
+import { Button, Loader } from 'semantic-ui-react'
 import { firebaseConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
@@ -50,7 +50,7 @@ const GameHost = props => {
       }
       />
     </div>
-  ) : null
+  ) : <Loader active />
 }
 
 function addListener(component, ref, user) {

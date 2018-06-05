@@ -26,12 +26,11 @@ class QuestionInput extends Component {
 
   handleSubmit() {
     this.props.createGame({ ...this.state })
-    console.log('adding game')
   }
 
   render() {
     return (
-      <Modal trigger={<Button>Create New Game</Button>}>
+      <Modal closeIcon trigger={<Button>Create New Game</Button>}>
         <Modal.Header>Create New Game</Modal.Header>
         <Modal.Content>
           <Form>
