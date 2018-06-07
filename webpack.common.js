@@ -14,9 +14,29 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['react', 'stage-3']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [
+              ['lodash', { id: ['lodash', 'semantic-ui-react'] }]
+            ],
+            presets: [
+              ["@babel/preset-env", {
+                modules: false,
+                targets: {
+                  browsers: [
+                    '>1%',
+                    'not ie 11',
+                    'not op_mini all',
+                    'opera 51',
+                    'FirefoxAndroid 57'
+                  ]
+                }
+              }],
+              '@babel/react',
+              '@babel/preset-stage-3'
+            ]
+          }
         }
       }
     ]

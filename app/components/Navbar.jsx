@@ -15,23 +15,23 @@ const HostNavbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) =
     </Menu.Item>
     <Menu.Menu position="right">
       {!user ?
-      <React.Fragment>
+      <>
         <Menu.Item style={{ padding: 0 }}>
           <AuthDropdown method="Sign up" submit={emailSignup} formFields={signupFields} {...propsToPass} />
         </Menu.Item>
         <Menu.Item style={{ padding: 0 }}>
           <AuthDropdown method="Log in" submit={emailLogin} formFields={loginFields} {...propsToPass} />
         </Menu.Item>
-      </React.Fragment>
+      </>
       :
-      <React.Fragment>
+      <>
         <Menu.Item style={{ padding: 0 }}>
           <div style={{ padding: '.93em 1.14em' }}>{user.displayName}</div>
         </Menu.Item>
         <Menu.Item style={{ padding: 0 }}>
           <div style={{ padding: '.93em 1.14em', cursor: 'pointer' }} onClick={logOut}>Log Out</div>
         </Menu.Item>
-      </React.Fragment>
+      </>
       }
     </Menu.Menu>
   </Menu>
@@ -84,14 +84,14 @@ class PlayerNavbar extends Component {
         </Menu.Item>
         {this.props.user &&
           <Menu.Menu position="right">
-            <React.Fragment>
+            <>
               <Menu.Item style={{ padding: 0 }}>
                 <div style={{ padding: '.93em 1.14em' }}>{this.state.name}</div>
               </Menu.Item>
               <Menu.Item style={{ padding: 0 }}>
                 <div style={{ padding: '.93em 1.14em', cursor: 'pointer' }} onClick={this.props.leaveGame}>Leave Game</div>
               </Menu.Item>
-            </React.Fragment>
+            </>
           </Menu.Menu>
         }
       </Menu>

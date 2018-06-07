@@ -8,7 +8,7 @@ import ResponseQueue from './ResponseQueue'
 
 const GameHost = props => {
   return props.isLoaded ? (
-    <React.Fragment>
+    <>
       <PlayerList
         players={props.players}
         removePlayer={props.removePlayer}
@@ -18,7 +18,7 @@ const GameHost = props => {
         markAsCorrect={props.markAsCorrect}
         markAsIncorrect={props.markAsIncorrect}
       />
-    </React.Fragment>
+    </>
   ) : null
 }
 

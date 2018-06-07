@@ -3,7 +3,7 @@ import { Button, List } from 'semantic-ui-react'
 
 const ResponseQueue = props => {
   return (
-    <React.Fragment>
+    <>
     responses go here
     <List>
       {props.responses.map(response => (
@@ -25,7 +25,7 @@ const ResponseQueue = props => {
         </List.Item>
       ))}
     </List>
-    </React.Fragment>
+    </>
   )
 }
 

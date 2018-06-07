@@ -34,9 +34,9 @@ class FirestoreConnect extends React.Component {
 
   render() {
     return (
-        <React.Fragment>
+        <>
           {this.props.__render({ ...this.dispatchers, ...this.props, ...this.state })}
-        </React.Fragment>
+        </>
     )
   }
 }

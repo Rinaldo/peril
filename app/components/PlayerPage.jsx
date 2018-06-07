@@ -10,7 +10,7 @@ const PlayingGame = props => {
   const currentQuestion = props.game.currentQuestion
   const answered = props.user && props.responseQueue[props.user.uid]
   return (
-    <React.Fragment>
+    <>
       {currentQuestion && !answered ?
       <div onClick={props.answerQuestion} style={{ padding: '2em', cursor: 'pointer' }}>
         <h3>{currentQuestion.prompt}</h3>
@@ -26,7 +26,7 @@ const PlayingGame = props => {
         <p>When a question appears, tap it to buzz in</p>
       </div>
       }
-    </React.Fragment>
+    </>
   )
 }
 
@@ -34,19 +34,19 @@ const PlayerSignedIn = props => {
   return props.game.started ?
     <PlayingGame {...props} />
     :
-    <React.Fragment>
+    <>
       <h2>Waiting for host to begin game</h2>
       <p>When a question appears, tap it to buzz in</p>
-    </React.Fragment>
+    </>
 }
 
 const JoinGame = props => {
   return (
-    <React.Fragment>
+    <>
       <h3>Welcome to Peril</h3>
       <NameForm submit={props.joinGame} />
       <p>Join as Spectator (placeholder)</p>
-    </React.Fragment>
+    </>
   )
 }
 

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 import { Loader } from 'semantic-ui-react'
 import { authConnect } from '../fire-connect'
@@ -12,16 +12,16 @@ import PlayerPage from './PlayerPage'
 
 
 const PlayerRouter = props => (
-  <Fragment>
+  <>
     <PlayerNav match={props.match} />
     <div style={{height: 'calc(100% - 48px)'}}>
       <PlayerPage match={props.match} />
     </div>
-  </Fragment>
+  </>
 )
 
 const HostRouter = ({ user }) => (
-  <Fragment>
+  <>
     <HostNav />
     <div style={{height: 'calc(100% - 48px)'}}>
       {
@@ -36,7 +36,7 @@ const HostRouter = ({ user }) => (
         <Route component={SplashPage} />
       }
     </div>
-  </Fragment>
+  </>
 )
 
 class Main extends Component {

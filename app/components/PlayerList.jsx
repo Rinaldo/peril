@@ -3,7 +3,7 @@ import { Button, List } from 'semantic-ui-react'
 
 const PlayerList = props => {
   return (
-    <React.Fragment>
+    <>
     players go here
     <List>
       {props.players.map(player => (
@@ -20,7 +20,7 @@ const PlayerList = props => {
         </List.Item>
       ))}
     </List>
-    </React.Fragment>
+    </>
   )
 }
 

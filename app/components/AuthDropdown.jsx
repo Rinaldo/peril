@@ -21,7 +21,7 @@ class AuthDropdown extends  Component {
       <Dropdown simple text={this.props.method} icon={false} style={{ padding: '.93em 1.14em' }}>
         <Dropdown.Menu>
           {this.state.byEmail ? <AuthForm {...this.props} /> :
-            <React.Fragment>
+            <>
               <Dropdown.Item>
                 <Button color="google plus" onClick={this.props.googleLogin}>
                   <Icon name="google" /> {this.props.method} with Google
@@ -32,7 +32,7 @@ class AuthDropdown extends  Component {
                   <Icon name="mail" /> {this.props.method} with Email
                 </Button>
               </Dropdown.Item>
-            </React.Fragment>
+            </>
           }
         </Dropdown.Menu>
       </Dropdown>
