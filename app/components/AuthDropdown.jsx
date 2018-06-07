@@ -18,7 +18,7 @@ class AuthDropdown extends  Component {
 
   render() {
     return (
-      <Dropdown button simple text={this.props.method} icon={false}>
+      <Dropdown simple text={this.props.method} icon={false} style={{ padding: '.93em 1.14em' }}>
         <Dropdown.Menu>
           {this.state.byEmail ? <AuthForm {...this.props} /> :
             <React.Fragment>

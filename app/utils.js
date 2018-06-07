@@ -28,7 +28,6 @@ export const stripData = game => {
   Object.entries(game.categories).forEach(([categoryKey, category]) => {
     stripped.categories[categoryKey] = { name: category.name || `Category ${+categoryKey + 1}`, questions: {} }
     Object.keys(category.questions).forEach(questionKey => {
-      // initializing to false instead of null because firebase can't store null values
       stripped.categories[categoryKey].questions[questionKey] = { asked: false }
     })
   })
@@ -37,9 +36,9 @@ export const stripData = game => {
 
 export const listPlayers = players => Object.entries(players).map(([uid, info]) => ({ uid, ...info }))
 
-export const listPlayersByScore = players => listPlayers(players).sort((a, b) => a.score - b.score)
+export const listPlayersByScore = players => listPlayers(players).sort((a, b) => b.score - a.score)
 
-export const playerResponsesByTime = (players, responses) => Object.entries(responses).map(([uid, time]) => ({ uid, time, ...players[uid] })).sort((a, b) => a.time - b.time)
+export const playerResponsesByTime = (players, responses) => Object.entries(responses).map(([uid, time]) => ({ uid, time, ...players[uid] })).sort((a, b) => b.time - a.time)
 
 
 export const equivalent = (left, right) => {

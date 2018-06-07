@@ -1,66 +1,72 @@
 import React from 'react'
-import { Button } from 'semantic-ui-react'
+import { Loader } from 'semantic-ui-react'
 import { firebaseConnect } from '../fire-connect'
 import { formatGame } from '../utils'
 
 import NameForm from './PlayerTempForm'
 
-const PlayerPage = props => {
-  console.log(props)
-  const inGame = props.isLoaded && props.user && props.players[props.user.uid] && props.players[props.user.uid].active
-  const answered = props.isLoaded && props.user && props.responseQueue[props.user.uid]
-  return props.isLoaded ?
-    (
-      <div>
-        {
-          inGame ?
-          <div>
-            {
-              props.game.started ?
-              <div>
-                {
-                  props.game.currentQuestion && !answered ?
-                  <div>
-                    {props.game.currentQuestion.prompt}
-                    <Button onClick={props.answerQuestion}>Buzz In</Button>
-                  </div>
-                  :
-                  props.game.currentQuestion && answered ?
-                  <div>
-                    Submitted
-                  </div>
-                  :
-                  <div>
-                    Waiting for Question
-                  </div>
-                }
-              </div>
-              :
-              <div>
-                Waiting for host to begin game
-              </div>
-            }
-            <Button onClick={props.leaveGame}>Leave Game</Button>
-          </div>
-          :
-          <div>
-            <p>Welcome to Peril</p>
-            <NameForm submit={props.joinGame} />
-          </div>
-        }
+
+const PlayingGame = props => {
+  const currentQuestion = props.game.currentQuestion
+  const answered = props.user && props.responseQueue[props.user.uid]
+  return (
+    <React.Fragment>
+      {currentQuestion && !answered ?
+      <div onClick={props.answerQuestion} style={{ padding: '2em', cursor: 'pointer' }}>
+        <h3>{currentQuestion.prompt}</h3>
       </div>
-    )
       :
-    null
+      currentQuestion && answered ?
+      <div>
+        <h3>Submitted</h3>
+      </div>
+      :
+      <div>
+        <h2>Waiting for Question</h2>
+        <p>When a question appears, tap it to buzz in</p>
+      </div>
+      }
+    </React.Fragment>
+  )
+}
+
+const PlayerSignedIn = props => {
+  return props.game.started ?
+    <PlayingGame {...props} />
+    :
+    <React.Fragment>
+      <h2>Waiting for host to begin game</h2>
+      <p>When a question appears, tap it to buzz in</p>
+    </React.Fragment>
+}
+
+const JoinGame = props => {
+  return (
+    <React.Fragment>
+      <h3>Welcome to Peril</h3>
+      <NameForm submit={props.joinGame} />
+      <p>Join as Spectator (placeholder)</p>
+    </React.Fragment>
+  )
+}
+
+const PlayerPage = props => {
+  if (!props.isLoaded) return <Loader active />
+  if (props.error) return <div>{props.error.message}</div>
+  const inGame = props.user && props.players[props.user.uid] && props.players[props.user.uid].active
+  return (
+    <div style={{ height: '75%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+      {inGame ? <PlayerSignedIn {...props} /> : <JoinGame {...props} />}
+    </div>
+  )
 }
 
 function addListener(component, ref) {
   return ref(`games/${component.props.match.params.hostId}/client`).on('value', snapshot => {
     if (!snapshot.exists()) {
-      console.log('no game found')
+      component.setState({ error: { message: 'Game Not Found' }, isLoaded: true })
       return
     }
-    console.log(snapshot.val())
     const { gameInfo, players, responseQueue, ...game } = snapshot.val()
     component.setState({
       game,
@@ -90,13 +96,6 @@ function addDispatchers(component, ref) {
     answerQuestion() {
       ref(`games/${component.props.match.params.hostId}/client/responseQueue/${component.props.user.uid}`).set(component.props.firebaseTimestamp)
       .catch(err => console.error('Error:', err))
-    },
-    leaveGame() {
-      ref(`games/${component.props.match.params.hostId}/client/players/${component.props.user.uid}`).update({
-        active: false
-      })
-      .catch(err => console.error('Error:', err))
-      component.props.user.isAnonymous && component.props.auth.signOut()
     },
   }
 }

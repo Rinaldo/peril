@@ -1,14 +1,14 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { Button, Menu } from 'semantic-ui-react'
-import { firestoreConnect } from '../fire-connect'
+import { Menu } from 'semantic-ui-react'
+import { firestoreConnect, firebaseConnect } from '../fire-connect'
 import { googleProvider } from '../firebase'
 import { loginFields, signupFields } from '../utils'
 
 import AuthDropdown from './AuthDropdown'
 
 
-const Navbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
+const HostNavbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
   <Menu attached inverted>
     <Menu.Item as={Link} to="/home">
       Peril
@@ -16,28 +16,27 @@ const Navbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) => (
     <Menu.Menu position="right">
       {!user ?
       <React.Fragment>
-        <Menu.Item>
+        <Menu.Item style={{ padding: 0 }}>
           <AuthDropdown method="Sign up" submit={emailSignup} formFields={signupFields} {...propsToPass} />
         </Menu.Item>
-        <Menu.Item>
+        <Menu.Item style={{ padding: 0 }}>
           <AuthDropdown method="Log in" submit={emailLogin} formFields={loginFields} {...propsToPass} />
         </Menu.Item>
       </React.Fragment>
       :
       <React.Fragment>
-        <Menu.Item>
-          <Button>{user.displayName}</Button>
+        <Menu.Item style={{ padding: 0 }}>
+          <div style={{ padding: '.93em 1.14em' }}>{user.displayName}</div>
         </Menu.Item>
-        <Menu.Item>
-          <Button onClick={logOut}>Log Out</Button>
+        <Menu.Item style={{ padding: 0 }}>
+          <div style={{ padding: '.93em 1.14em', cursor: 'pointer' }} onClick={logOut}>Log Out</div>
         </Menu.Item>
       </React.Fragment>
       }
     </Menu.Menu>
   </Menu>
 )
-
-const addDispatchers = ({ props: { auth } }) => ({
+const addHostDispatchers = ({ props: { auth } }) => ({
   logOut() {
     auth.signOut()
   },
@@ -60,4 +59,58 @@ const addDispatchers = ({ props: { auth } }) => ({
   }
 })
 
-export default firestoreConnect(null, addDispatchers)(Navbar)
+
+class PlayerNavbar extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  //not adding a listener with firebaseConnect as we don't know what the user's uid is until after the component has mounted
+  componentDidUpdate(prevProps) {
+    if (!prevProps.user && this.props.user) {
+      this.props.firebase.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
+        this.setState({ name: snapshot.val() })
+      })
+    }
+  }
+
+  render() {
+    console.log(this.props.user)
+    return (
+      <Menu attached inverted>
+        <Menu.Item as={Link} to="/home">
+          Peril
+        </Menu.Item>
+        {this.props.user &&
+          <Menu.Menu position="right">
+            <React.Fragment>
+              <Menu.Item style={{ padding: 0 }}>
+                <div style={{ padding: '.93em 1.14em' }}>{this.state.name}</div>
+              </Menu.Item>
+              <Menu.Item style={{ padding: 0 }}>
+                <div style={{ padding: '.93em 1.14em', cursor: 'pointer' }} onClick={this.props.leaveGame}>Leave Game</div>
+              </Menu.Item>
+            </React.Fragment>
+          </Menu.Menu>
+        }
+      </Menu>
+    )
+  }
+}
+const addPlayerDispatchers = (connector, ref) => {
+  return {
+    leaveGame() {
+      console.log('​addPlayerDispatchers -> props', connector.props);
+      ref(`games/${connector.props.match.params.hostId}/client/players/${connector.props.user.uid}`).update({
+        active: false
+      })
+      .catch(err => console.error('Error:', err))
+      connector.props.user.isAnonymous && connector.props.auth.signOut()
+    },
+  }
+}
+
+
+export const HostNav = firestoreConnect(null, addHostDispatchers)(HostNavbar)
+export const PlayerNav = firebaseConnect(null, addPlayerDispatchers)(PlayerNavbar)

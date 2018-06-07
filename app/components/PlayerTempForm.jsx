@@ -30,7 +30,7 @@ class NameForm extends Component {
         />
         <Form.Button
           type="submit"
-          content="Submit"
+          content="Join"
         />
       </Form>
     )
