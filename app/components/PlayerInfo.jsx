@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { Component } from 'react'
+import { Loader, Menu, Segment } from 'semantic-ui-react'
 import { firebaseConnect } from '../fire-connect'
 import { listPlayersByScore, playerResponsesByTime } from '../utils'
 
@@ -6,20 +7,61 @@ import PlayerList from './PlayerList'
 import ResponseQueue from './ResponseQueue'
 
 
-const GameHost = props => {
-  return props.isLoaded ? (
-    <>
-      <PlayerList
-        players={props.players}
-        removePlayer={props.removePlayer}
-      />
-      <ResponseQueue
-        responses={props.responses}
-        markAsCorrect={props.markAsCorrect}
-        markAsIncorrect={props.markAsIncorrect}
-      />
-    </>
-  ) : null
+class PlayerInfo extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { display: 'Players' }
+    this.setDisplay = this.setDisplay.bind(this)
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.currentQuestion && prevState.display === 'Players') {
+      return { display: 'Responses' }
+    } else if (!nextProps.currentQuestion && prevState.display === 'Responses') {
+      return { display: 'Players' }
+    } else {
+      return null
+    }
+  }
+
+  setDisplay(_, { name }) {
+    this.setState({ display: name })
+  }
+
+  render() {
+    console.log(this.state.display)
+    return this.props.isLoaded ? (
+      <div style={{ height: '100%' }}>
+        <Menu attached widths={2}>
+          <Menu.Item
+            active={this.state.display === 'Players'}
+            name="Players"
+            onClick={this.setDisplay}
+          />
+          <Menu.Item
+            active={this.state.display === 'Responses'}
+            name="Responses"
+            onClick={this.setDisplay}
+            />
+        </Menu>
+        <Segment attached style={{ overflowY: 'auto', height: 'calc(100% - 40px)' }}>
+          {this.state.display === 'Players' &&
+            <PlayerList
+              players={this.props.players}
+              removePlayer={this.props.removePlayer}
+            />
+          }
+          {this.state.display === 'Responses' &&
+            <ResponseQueue
+              responses={this.props.responses}
+              markAsCorrect={this.props.markAsCorrect}
+              markAsIncorrect={this.props.markAsIncorrect}
+            />
+          }
+        </Segment>
+      </div>
+    ) : <Loader active />
+  }
 }
 
 function addListener(component, ref, user) {
@@ -76,4 +118,4 @@ function addDispatchers(component, ref, user) {
   }
 }
 
-export default firebaseConnect(addListener, addDispatchers)(GameHost)
+export default firebaseConnect(addListener, addDispatchers)(PlayerInfo)
