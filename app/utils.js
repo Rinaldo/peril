@@ -34,11 +34,14 @@ export const stripData = game => {
   return stripped
 }
 
-export const listPlayers = players => Object.entries(players).map(([uid, info]) => ({ uid, ...info }))
+export const listPlayers = players =>
+  Object.entries(players).map(([uid, info]) => ({ uid, ...info }))
 
-export const listPlayersByScore = players => listPlayers(players).sort((a, b) => b.score - a.score)
+export const listPlayersByScore = players =>
+  listPlayers(players).sort((a, b) => b.score - a.score)
 
-export const playerResponsesByTime = (players, responses) => Object.entries(responses).map(([uid, time]) => ({ uid, time, ...players[uid] })).sort((a, b) => b.time - a.time)
+export const playerResponsesByTime = (players, responses) =>
+  Object.entries(responses).map(([uid, time]) => ({ uid, time, ...players[uid] })).sort((a, b) => a.time - b.time)
 
 
 export const equivalent = (left, right) => {

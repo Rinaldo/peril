@@ -12,6 +12,7 @@ const PlayingGame = props => {
   return (
     <>
       {currentQuestion && !answered ?
+      // question reappears when answer is marked as incorrect
       <div onClick={props.answerQuestion} style={{ padding: '2em', cursor: 'pointer' }}>
         <h3>{currentQuestion.prompt}</h3>
       </div>
@@ -44,6 +45,7 @@ const JoinGame = props => {
   return (
     <>
       <h3>Welcome to Peril</h3>
+      {/* disable if game has started */}
       <NameForm submit={props.joinGame} />
       <p>Join as Spectator (placeholder)</p>
     </>
@@ -78,20 +80,22 @@ function addListener(component, ref) {
   })
 }
 
-function addDispatchers(component, ref) {
+function addDispatchers(component, ref, host) {
   return {
     joinGame({ name }) {
-      // will this fail if the user has already signed in?
-      component.props.auth.signInAnonymously()
-      .then(user => {
-        // console.log('host id:', component.props.match.params.hostId, ' uid:', user.uid)
-        return ref(`games/${component.props.match.params.hostId}/client/players/${user.uid}`).set({
-          name,
-          score: 0,
-          active: true,
+      if (!component.state.game.started || component.state.game.latePlayersAllowed) {
+        const user = host ? Promise.resolve(host) : component.props.auth.signInAnonymously()
+        user.then(_user => {
+          return ref(`games/${component.props.match.params.hostId}/client/players/${_user.uid}`).set({
+            name,
+            score: 0,
+            active: true,
+          })
         })
-      })
-      .catch(err => console.error('Error:', err))
+        .catch(err => console.error('Error:', err))
+      } else {
+        console.log(`can't join games in progress`)
+      }
     },
     answerQuestion() {
       ref(`games/${component.props.match.params.hostId}/client/responseQueue/${component.props.user.uid}`).set(component.props.firebaseTimestamp)

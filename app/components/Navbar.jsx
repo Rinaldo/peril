@@ -65,9 +65,17 @@ class PlayerNavbar extends Component {
     super(props)
     this.state = {}
   }
-
-  //not adding a listener with firebaseConnect as we don't know what the user's uid is until after the component has mounted
+  //not adding a listener with firebaseConnect as we may not know what the user's uid is until after the component has mounted
+  componentDidMount() {
+    console.log('​PlayerNavbar -> componentDidMount -> this.props.user', this.props.user);
+    if (this.props.user) {
+      this.props.firebase.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
+        this.setState({ name: snapshot.val() })
+      })
+    }
+  }
   componentDidUpdate(prevProps) {
+    console.log('​PlayerNavbar -> componentDidUpdate -> prevProps', prevProps);
     if (!prevProps.user && this.props.user) {
       this.props.firebase.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
         this.setState({ name: snapshot.val() })
@@ -101,7 +109,7 @@ class PlayerNavbar extends Component {
 const addPlayerDispatchers = (connector, ref) => {
   return {
     leaveGame() {
-      console.log('​addPlayerDispatchers -> props', connector.props);
+      // delete if game has not started, mark inactive if it has
       ref(`games/${connector.props.match.params.hostId}/client/players/${connector.props.user.uid}`).update({
         active: false
       })
