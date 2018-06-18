@@ -7,30 +7,15 @@ const fireContext = React.createContext()
 export default class Provider extends Component {
   constructor(props) {
     super(props)
-    // putting props in state to pass to context
-    this.state = {
-      auth: this.props.auth,
-      firebase: this.props.firebase,
-      firestore: this.props.firestore,
-      firebaseTimestamp: this.props.firebaseTimestamp,
-      firestoreTimestamp: this.props.firestoreTimestamp,
-    }
+    this.state = {}
     // Provider takes a boolean prop that changes the auth listener
     this.onChange = this.props.onIdTokenChanged ? 'onIdTokenChanged' : 'onAuthStateChanged'
-  }
-  // Provider's props shouldn't change, but this and componentDidUpdate are here just in case
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const newState = {}
-    Object.keys(prevState).forEach(key => {
-      if (prevState[key] !== nextProps[key]) newState[key] = nextProps[key]
-    })
-    return Object.keys(newState).length ? newState : null
   }
 
   componentDidMount() {
     this.unsubscribeAuth = this.props.auth && this.props.auth[this.onChange](user => this.setState({ user }))
   }
-
+  // auth shouldn't change, but just in case it does...
   componentDidUpdate(prevProps) {
     if (prevProps.auth !== this.props.auth) {
       this.unsubscribeAuth && this.unsubscribeAuth()
@@ -44,7 +29,7 @@ export default class Provider extends Component {
 
   render() {
     return (
-      <fireContext.Provider value={this.state}>
+      <fireContext.Provider value={{ ...this.props, ...this.state }}>
         {this.props.children}
       </fireContext.Provider>
     )
