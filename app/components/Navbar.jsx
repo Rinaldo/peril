@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
-import { authConnect, firebaseConnect } from '../fire-connect'
+import { authConnect, firebaseConnect } from 'fire-connect'
 import { googleProvider } from '../firebase'
 import { loginFields, signupFields } from '../utils'
 

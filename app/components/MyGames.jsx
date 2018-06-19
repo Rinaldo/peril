@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
-import { firestoreConnect } from '../fire-connect'
+import { firestoreConnect } from 'fire-connect'
 
 
 const MyGames = props => {

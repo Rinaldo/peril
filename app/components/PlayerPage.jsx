@@ -1,6 +1,6 @@
 import React from 'react'
 import { Loader } from 'semantic-ui-react'
-import { firebaseConnect } from '../fire-connect'
+import { firebaseConnect } from 'fire-connect'
 import { formatGame } from '../utils'
 
 import NameForm from './PlayerTempForm'

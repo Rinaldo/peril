@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Loader } from 'semantic-ui-react'
-import { firestoreConnect } from '../fire-connect'
+import { firestoreConnect } from 'fire-connect'
 import { formatGame } from '../utils'
 
 import GameInfo from './GameInfo'

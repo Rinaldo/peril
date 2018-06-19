@@ -1,6 +1,6 @@
 import React from 'react'
 import { Segment, Header, Button, Loader } from 'semantic-ui-react'
-import { firestoreConnect } from '../fire-connect'
+import { firestoreConnect } from 'fire-connect'
 import { stripData } from '../utils'
 
 

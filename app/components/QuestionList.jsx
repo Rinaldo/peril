@@ -1,6 +1,6 @@
 import React from 'react'
 import { Item, Menu, Segment, Input, Loader } from 'semantic-ui-react'
-import { firestoreConnect } from '../fire-connect'
+import { firestoreConnect } from 'fire-connect'
 
 
 const Questions = (props) => {

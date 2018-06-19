@@ -1,5 +1,5 @@
 import React from 'react'
-import { firestoreConnect } from '../fire-connect'
+import { firestoreConnect } from 'fire-connect'
 
 import MyGames from './MyGames'
 import QuestionList from './QuestionList'

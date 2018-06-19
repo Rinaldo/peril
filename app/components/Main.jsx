@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 import { Loader } from 'semantic-ui-react'
-import { authConnect } from '../fire-connect'
+import { authConnect } from 'fire-connect'
 
 import GameCreation from './GameCreation'
 import { HostNav, PlayerNav } from './Navbar'

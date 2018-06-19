@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Loader, Menu, Segment } from 'semantic-ui-react'
-import { firebaseConnect } from '../fire-connect'
+import { firebaseConnect } from 'fire-connect'
 import { listPlayersByScore, playerResponsesByTime } from '../utils'
 
 import PlayerList from './PlayerList'

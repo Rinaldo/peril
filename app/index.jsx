@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from 'react-dom'
-import { Provider } from './fire-connect'
+import { Provider } from 'fire-connect'
 import { auth, firestore, database, firebaseTimestamp } from './firebase'
 
 import Main from './components/Main'
