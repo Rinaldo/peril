@@ -17,6 +17,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            babelrc: false,
             plugins: [
               ['lodash', { id: ['lodash', 'semantic-ui-react'] }]
             ],

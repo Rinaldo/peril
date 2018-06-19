@@ -1,13 +1,14 @@
 import React from 'react'
 
-import { contextConnector } from './provider'
+import { baseStoreContextConnector } from './provider'
 
 class FirebaseConnect extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this.dispatchers = typeof this.props.dispatchers === 'function' ?
-      this.props.dispatchers(this, this.props.firebase.ref.bind(this.props.firebase), this.props.user) : {}
+    this.dispatchers = typeof this.props.dispatchers === 'function'
+      ? this.props.dispatchers(this, this.props.database.ref.bind(this.props.database), this.props.user)
+      : {}
     this.spyRef = this.spyRef.bind(this)
     this.setEventType = this.setEventType.bind(this)
     this.fireRefs = []
@@ -16,7 +17,7 @@ class FirebaseConnect extends React.Component {
   }
 
   spyRef(path) {
-    const fireRef = this.props.firebase.ref(path)
+    const fireRef = this.props.database.ref(path)
     this.fireRefs.push(fireRef)
     return fireRef
   }
@@ -61,4 +62,4 @@ class FirebaseConnect extends React.Component {
   }
 }
 
-export default contextConnector(FirebaseConnect)
+export default baseStoreContextConnector(FirebaseConnect)

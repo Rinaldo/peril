@@ -13,12 +13,13 @@ const config = {
 }
 firebase.initializeApp(config)
 
-export const db = firebase.firestore()
-export const rt = firebase.database()
+export const firestore = firebase.firestore()
+firestore.settings({ timestampsInSnapshots: true })
+export const database = firebase.database()
 export const auth = firebase.auth()
 export const googleProvider = new firebase.auth.GoogleAuthProvider()
 
 export const firebaseTimestamp = firebase.database.ServerValue.TIMESTAMP
-export const firestoreFieldValue = firebase.firestore.FieldValue
+// export const firestoreFieldValue = firebase.firestore.FieldValue
 
 export default firebase

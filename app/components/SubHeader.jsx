@@ -41,7 +41,7 @@ const addDispatchers = (component, db, user) => ({
     .get()
     .then(doc => doc.data())
     .then(gameInfo => {
-      component.props.firebase.ref(`games/${user.uid}`).set({
+      component.props.database.ref(`games/${user.uid}`).set({
         client: { ...component.state.game, gameInfo: stripData(gameInfo) },
         host: { gameInfo },
       })

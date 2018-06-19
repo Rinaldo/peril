@@ -1,10 +1,10 @@
 /* eslint-disable react/no-multi-comp */
 
-import React, { Component } from 'react'
+import React from 'react'
 
 const fireContext = React.createContext()
 
-export default class Provider extends Component {
+export default class Provider extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
@@ -38,7 +38,7 @@ export default class Provider extends Component {
 
 /* eslint-disable react/prefer-stateless-function */
 /* returning a class function so it has a display name */
-export const contextConnector = Connector =>
+export const baseStoreContextConnector = Connector =>
   (listeners, dispatchers) =>
     ConnectedComponent =>
       class WithContext extends React.Component {
@@ -57,4 +57,24 @@ export const contextConnector = Connector =>
             </fireContext.Consumer>
           )
         }
-}
+      }
+// same as above except only takes a dispatchers argument instead of both listeners and dispatchers
+export const authContextConnector = Connector =>
+  (authDispatchers) =>
+    ConnectedComponent =>
+      class WithContext extends React.Component {
+        render() {
+          return (
+            <fireContext.Consumer>
+              {context => (
+                <Connector
+                  {...context}
+                  authDispatchers={authDispatchers}
+                  {...this.props}
+                  __render={stuff => <ConnectedComponent {...stuff} />}
+                />
+              )}
+            </fireContext.Consumer>
+          )
+        }
+      }

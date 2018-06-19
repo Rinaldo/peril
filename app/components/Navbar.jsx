@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
-import { firestoreConnect, firebaseConnect } from '../fire-connect'
+import { authConnect, firebaseConnect } from '../fire-connect'
 import { googleProvider } from '../firebase'
 import { loginFields, signupFields } from '../utils'
 
@@ -36,21 +36,21 @@ const HostNavbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) =
     </Menu.Menu>
   </Menu>
 )
-const addHostDispatchers = ({ props: { auth } }) => ({
+const addHostDispatchers = (connector, auth) => ({
   logOut() {
     auth.signOut()
   },
-  // returns an object containing the user object along with other info including additionalUserInfo.isNewUser
+
   googleLogin() {
     auth.signInWithPopup(googleProvider)
     .catch(err => console.error('Sign up or sign in error:', err))
   },
-  // returns the user object
+
   emailLogin(email, password) {
     auth.signInWithEmailAndPassword(email, password)
     .catch(err => console.error('Sign up or sign in error:', err))
   },
-  // returns the user object
+
   emailSignup(email, password, name) {
     auth.createUserWithEmailAndPassword(email, password)
     .then(user => Promise.all([user, user.updateProfile({ displayName: name })]))
@@ -120,5 +120,5 @@ const addPlayerDispatchers = (connector, ref) => {
 }
 
 
-export const HostNav = firestoreConnect(null, addHostDispatchers)(HostNavbar)
+export const HostNav = authConnect(addHostDispatchers)(HostNavbar)
 export const PlayerNav = firebaseConnect(null, addPlayerDispatchers)(PlayerNavbar)

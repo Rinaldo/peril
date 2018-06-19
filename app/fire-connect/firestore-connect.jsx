@@ -1,13 +1,14 @@
 import React from 'react'
 
-import { contextConnector } from './provider'
+import { baseStoreContextConnector } from './provider'
 
 class FirestoreConnect extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this.dispatchers = typeof this.props.dispatchers === 'function' ?
-      this.props.dispatchers(this, this.props.firestore, this.props.user) : {}
+    this.dispatchers = typeof this.props.dispatchers === 'function'
+      ? this.props.dispatchers(this, this.props.firestore, this.props.user)
+      : {}
     this.unsubscribers = []
   }
 
@@ -41,4 +42,4 @@ class FirestoreConnect extends React.Component {
   }
 }
 
-export default contextConnector(FirestoreConnect)
+export default baseStoreContextConnector(FirestoreConnect)
