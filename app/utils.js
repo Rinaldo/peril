@@ -15,8 +15,10 @@ export const formatGame = game => {
     for (let j = 0; j < game.height; j++) {
       if (game.categories && game.categories[i] && game.categories[i].questions[j]) {
         formatted.rows[j][i] = game.categories[i].questions[j]
-        formatted.rows[j][i].points = (j + 1) * formatted.multiplier
+      } else {
+        formatted.rows[j][i] = { empty: true }
       }
+      formatted.rows[j][i].points = (j + 1) * formatted.multiplier
     }
   }
   return formatted
@@ -27,8 +29,8 @@ export const stripData = game => {
   stripped.categories = {}
   Object.entries(game.categories).forEach(([categoryKey, category]) => {
     stripped.categories[categoryKey] = { name: category.name || `Category ${+categoryKey + 1}`, questions: {} }
-    Object.keys(category.questions).forEach(questionKey => {
-      stripped.categories[categoryKey].questions[questionKey] = { asked: false }
+    Object.entries(category.questions).forEach(([questionKey, question]) => {
+      if (question) stripped.categories[categoryKey].questions[questionKey] = { asked: false }
     })
   })
   return stripped

@@ -19,14 +19,14 @@ const BoardCell = ({
         (currentRow === selectedRow &&
           currentCol === selectedCol &&
           locked) ? 'selectable-cell locked-selectable-cell'
-          : !cell ? 'selectable-cell empty-cell'
+          : cell.empty ? 'selectable-cell empty-cell'
           : 'selectable-cell'}
       row={currentRow}
       col={currentCol}
       onMouseEnter={selectQuestion}
       onClick={toggleLock}
     >
-      {(currentRow + 1) * multiplier}
+      {cell.points}
     </div>
   )
 }

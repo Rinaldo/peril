@@ -9,6 +9,7 @@ import SplashPage from './SplashPage'
 import Home from './Home'
 import GameHost from './GameHost'
 import PlayerPage from './PlayerPage'
+import Spectator from './Spectator'
 
 
 const PlayerRouter = props => (
@@ -16,6 +17,15 @@ const PlayerRouter = props => (
     <PlayerNav match={props.match} />
     <div style={{height: 'calc(100% - 48px)'}}>
       <PlayerPage match={props.match} />
+    </div>
+  </>
+)
+
+const SpectatorRouter = props => (
+  <>
+    <PlayerNav match={props.match} />
+    <div style={{height: 'calc(100% - 48px)'}}>
+      <Spectator match={props.match} />
     </div>
   </>
 )
@@ -53,6 +63,7 @@ class Main extends Component {
         <Router>
           <Switch>
             <Route path="/play/:hostId" component={PlayerRouter} />
+            <Route path="/spectate/:hostId" component={SpectatorRouter} />
             <Route render={() => <HostRouter user={this.props.user} />} />
           </Switch>
         </Router>
