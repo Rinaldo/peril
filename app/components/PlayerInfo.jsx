@@ -10,18 +10,14 @@ import ResponseQueue from './ResponseQueue'
 class PlayerInfo extends Component {
   constructor(props) {
     super(props)
-    this.state = { display: 'Players' }
+    this.state = { display: 'Players', responses: false }
     this.setDisplay = this.setDisplay.bind(this)
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.currentQuestion && prevState.display === 'Players') {
-      return { display: 'Responses' }
-    } else if (!nextProps.currentQuestion && prevState.display === 'Responses') {
-      return { display: 'Players' }
-    } else {
-      return null
-    }
+    if (!prevState.responses && nextProps.responses && nextProps.responses.length) return { responses: true, display: 'Responses' }
+    if (prevState.responses && nextProps.responses && !nextProps.responses.length) return { responses: false, display: 'Players' }
+    return null
   }
 
   setDisplay(_, { name }) {
@@ -29,7 +25,7 @@ class PlayerInfo extends Component {
   }
 
   render() {
-    console.log(this.state.display)
+    // console.log(this.state.display)
     return this.props.isLoaded ? (
       <div style={{ height: '100%' }}>
         <Menu attached widths={2}>

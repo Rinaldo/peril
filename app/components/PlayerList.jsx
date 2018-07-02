@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, List } from 'semantic-ui-react'
+import { List } from 'semantic-ui-react'
 
 const PlayerList = props => {
   return (
@@ -8,14 +8,13 @@ const PlayerList = props => {
         <List>
           {props.players.map(player => (
             <List.Item key={player.uid}>
-              {/* <List.Icon name='users' /> */}
-              <List.Content>
-                <Button
-                  compact
-                  content="X"
-                  onClick={() => props.removePlayer(player)}
-                />
-                {player.name} - {player.score}
+              <List.Icon
+                name="user close"
+                onClick={() => props.removePlayer(player)}
+                style={{ cursor: 'pointer', fontSize: '1.2em' }}
+              />
+              <List.Content style={{ fontSize: '1.2em' }}>
+                <strong style={{ marginRight: '0.6em' }}>{player.name}</strong><span>{player.score} pts</span>
               </List.Content>
             </List.Item>
           ))}
