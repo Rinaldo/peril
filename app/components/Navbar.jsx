@@ -69,7 +69,7 @@ class PlayerNavbar extends Component {
   componentDidMount() {
     console.log('​PlayerNavbar -> componentDidMount -> this.props.user', this.props.user);
     if (this.props.user) {
-      this.props.firebase.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
+      this.props.database.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
         this.setState({ name: snapshot.val() })
       })
     }
@@ -77,7 +77,7 @@ class PlayerNavbar extends Component {
   componentDidUpdate(prevProps) {
     console.log('​PlayerNavbar -> componentDidUpdate -> prevProps', prevProps);
     if (!prevProps.user && this.props.user) {
-      this.props.firebase.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
+      this.props.database.ref(`games/${this.props.match.params.hostId}/client/players/${this.props.user.uid}/name`).once('value', snapshot => {
         this.setState({ name: snapshot.val() })
       })
     }
