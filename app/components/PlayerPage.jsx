@@ -63,7 +63,13 @@ const PlayerPage = props => {
   )
 }
 
-function addListener(component, ref) {
+function addListener(component, ref, user) {
+  // signing up the user preemptively to speed up joining the game
+  if (!user) {
+    component.props.auth.signInAnonymously()
+    .catch(err => console.error('Error:', err))
+  }
+
   return ref(`games/${component.props.match.params.hostId}/client`).on('value', snapshot => {
     if (!snapshot.exists()) {
       component.setState({ error: { message: 'Game Not Found' }, isLoaded: true })
@@ -80,17 +86,15 @@ function addListener(component, ref) {
   })
 }
 
-function addDispatchers(component, ref, host) {
+function addDispatchers(component, ref) {
   return {
     joinGame({ name }) {
       if (!component.state.game.started || component.state.game.latePlayersAllowed) {
-        const user = host ? Promise.resolve(host) : component.props.auth.signInAnonymously()
-        user.then(_user => {
-          return ref(`games/${component.props.match.params.hostId}/client/players/${_user.uid}`).set({
-            name,
-            score: 0,
-            active: true,
-          })
+        const user = component.props.auth.currentUser
+        ref(`games/${component.props.match.params.hostId}/client/players/${user.uid}`).set({
+          name,
+          score: 0,
+          active: true,
         })
         .catch(err => console.error('Error:', err))
       } else {
