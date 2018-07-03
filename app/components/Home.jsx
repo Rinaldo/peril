@@ -7,6 +7,8 @@ import Question from './Question'
 import GameCreationModal from './GameCreationModal'
 import QuestionInputModal from './QuestionInputModal'
 
+import { stringsToWordSet } from '../utils'
+
 const Home = props => {
   // console.log('home props', props)
   return (
@@ -28,10 +30,11 @@ const Home = props => {
   )
 }
 
-function addDispatchers(component, db, user) {
+function addDispatchers(connector, db, user) {
   return {
     createGame(game) {
       const { title, description, isPublic, width, height, multiplier } = game
+      const wordSet = stringsToWordSet(title, description)
       db.collection('gameTemplates').add({
         title,
         description,
@@ -40,27 +43,60 @@ function addDispatchers(component, db, user) {
           name: user.displayName,
           uid: user.uid
         },
+        autoTags: wordSet,
+        createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
       })
-      .then(docRef =>
+      .then(docRef => {
         docRef.collection('gameInfo').doc('info').set({
           width,
           height,
           multiplier,
         })
-        .then(() => docRef)
+        return docRef
+      })
+      .then(docRef => connector.props.history.push(`games/${docRef.id}`))
+      .then(() =>
+        db.runTransaction(transaction => {
+          const refs = Object.keys(wordSet).map(word => db.collection('wordsInGames').doc(word))
+          return Promise.all(refs.map(async ref => {
+            const doc = await transaction.get(ref)
+            if (!doc.exists) {
+              transaction.set(ref, { count: 1 })
+            } else {
+              const newCount = doc.data().count + 1
+              transaction.update(ref, { count: newCount })
+            }
+          }))
+        })
       )
-      .then(docRef => component.props.history.push(`games/${docRef}`))
       .catch(err => console.error('Error creating game', err))
     },
     writeQuestion(question) {
       console.log('​writeQuestion -> question', question);
-      return db.collection('questions').add({
+      const wordSet = stringsToWordSet(question.prompt, question.response)
+      db.collection('questions').add({
           ...question,
           author: {
             name: user.displayName,
             uid: user.uid,
-          }
+          },
+          autoTags: wordSet,
+          createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
       })
+      .then(() =>
+        db.runTransaction(transaction => {
+          const refs = Object.keys(wordSet).map(word => db.collection('wordsInQuestions').doc(word))
+          return Promise.all(refs.map(async ref => {
+            const doc = await transaction.get(ref)
+            if (!doc.exists) {
+              transaction.set(ref, { count: 1 })
+            } else {
+              const newCount = doc.data().count + 1
+              transaction.update(ref, { count: newCount })
+            }
+          }))
+        })
+      )
       .catch(err => console.error('Error writing question', err))
     },
   }

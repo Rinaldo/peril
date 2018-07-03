@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'fire-connect'
-import { auth, firestore, database, firebaseTimestamp } from './firebase'
+import { auth, firestore, database, firebaseTimestamp, firestoreFieldValue } from './firebase'
 
 import Main from './components/Main'
 
@@ -11,7 +11,7 @@ render(
     database={database}
     firestore={firestore}
     firebaseTimestamp={firebaseTimestamp}
-    // firestoreFieldValue={firestoreFieldValue}
+    firestoreFieldValue={firestoreFieldValue}
     onIdTokenChanged>
     <Main />
   </Provider>,
