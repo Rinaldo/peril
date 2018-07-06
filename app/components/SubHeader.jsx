@@ -1,7 +1,7 @@
 import React from 'react'
 import { Segment, Header, Button, Loader } from 'semantic-ui-react'
 import { firestoreConnect } from 'fire-connect'
-import { stripData } from '../utils'
+import { stripData, stripTags } from '../utils'
 
 
 const SubHeader = props => {
@@ -43,7 +43,7 @@ const addDispatchers = (connector, db, user) => ({
     .then(gameInfo => {
       connector.props.database.ref(`games/${user.uid}`).set({
         client: { ...connector.state.game, gameInfo: stripData(gameInfo) },
-        host: { gameInfo },
+        host: { gameInfo: stripTags(gameInfo) },
       })
       connector.props.history.push('/host')
     })

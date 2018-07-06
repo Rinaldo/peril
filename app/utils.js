@@ -1,3 +1,5 @@
+import { cloneDeepWith } from 'lodash'
+
 export const ItemTypes = {
   QUESTION_FROM_LIST: 'questionFromList',
   QUESTION_FROM_BOARD: 'questionFromBoard'
@@ -13,7 +15,7 @@ export const formatGame = game => {
       formatted.headers[i] = game.categories[i].name
     }
     for (let j = 0; j < game.height; j++) {
-      if (game.categories && game.categories[i] && game.categories[i].questions[j]) {
+      if (game.categories && game.categories[i] && game.categories[i].questions && game.categories[i].questions[j]) {
         formatted.rows[j][i] = game.categories[i].questions[j]
       } else {
         formatted.rows[j][i] = { empty: true }
@@ -35,6 +37,10 @@ export const stripData = game => {
   })
   return stripped
 }
+
+export const stripTags = game => cloneDeepWith(game, (val, key) => {
+    if (key === 'allTags' || key === 'userTags') return null
+  })
 
 export const listPlayers = players =>
   Object.entries(players).map(([uid, info]) => ({ uid, ...info }))
@@ -91,13 +97,13 @@ export const signupFields = [
   }
 ]
 
-const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "it's", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
+const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
 
 const removeInterrogatives = phrase => phrase.replace(/^(\s*(who|what|when|where|why|how)\s+(is|are)\s+)|\?+\s*$/gi, '')
 
 const preprocessWord = word => {
-  const spacesAndPunctuationAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$/g
-  return word.toLowerCase().replace(spacesAndPunctuationAtEnds, '')
+  const spacesPunctuationAndPossessivesAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$|'s[,.;:?!'")`\s]*$/g
+  return word.toLowerCase().replace(spacesPunctuationAndPossessivesAtEnds, '')
 }
 
 const containsInvalidCharacters = (string, returnIndex) => {
@@ -122,7 +128,7 @@ const wordsToTags = (words, wordMap = {}, minLength = 1, stopWordsSet = new Set(
     if (trimmedWord.length >= minLength && !containsInvalidCharacters(trimmedWord) && !stopWordsSet.has(trimmedWord)) {
       map[trimmedWord] = true
     }
-  return map
+    return map
   }, wordMap)
 
 const addPhraseToTags = (phrase, tags) => {

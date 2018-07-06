@@ -8,7 +8,7 @@ const MyGames = props => {
   return (
     <div style={{ height: '100%' }}>
       <Menu attached widths={2}>
-        <Menu.Item name="My Games" />
+        <Menu.Item name="My Games" active />
         <Menu.Item name="Top Games" style={{ color: 'rgb(212, 212, 212)' }} />
       </Menu>
       <Segment attached style={{ height: '40px', paddingTop: '10px' }}>

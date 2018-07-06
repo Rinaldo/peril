@@ -32,8 +32,8 @@ const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be",
 const removeInterrogatives = phrase => phrase.replace(/^(\s*(who|what|when|where|why|how)\s+(is|are)\s+)|\?+\s*$/gi, '')
 
 const preprocessWord = word => {
-  const spacesAndPunctuationAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$/g
-  return word.toLowerCase().replace(spacesAndPunctuationAtEnds, '')
+  const spacesPunctuationAndPossessivesAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$|'s[,.;:?!'")`\s]*$/g
+  return word.toLowerCase().replace(spacesPunctuationAndPossessivesAtEnds, '')
 }
 
 const containsInvalidCharacters = (string, returnIndex) => {
@@ -42,23 +42,13 @@ const containsInvalidCharacters = (string, returnIndex) => {
   return returnIndex ? string.search(stuffIDontWant) : string.search(stuffIDontWant) !== -1
 }
 
-const mergeTagSets = (...tagSet) => {
-  const merged = {}
-  tagSet.forEach(set => {
-    Object.keys(set).forEach(word => {
-      merged[word] = true
-    })
-  })
-  return merged
-}
-
 const wordsToTags = (words, wordMap = {}, minLength = 1, stopWordsSet = new Set()) =>
   words.reduce((map, currentWord) => {
     const trimmedWord = preprocessWord(currentWord)
     if (trimmedWord.length >= minLength && !containsInvalidCharacters(trimmedWord) && !stopWordsSet.has(trimmedWord)) {
       map[trimmedWord] = true
     }
-  return map
+    return map
   }, wordMap)
 
 const addPhraseToTags = (phrase, tags) => {
