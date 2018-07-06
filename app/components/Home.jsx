@@ -32,19 +32,14 @@ const Home = props => {
 
 function addDispatchers(connector, db, user) {
 
-  const runTagsTransaction = (tagSet, collectionName) =>
-    db.runTransaction(transaction => {
-      const refs = Object.keys(tagSet).map(word => db.collection(collectionName).doc(word))
-      return Promise.all(refs.map(async ref => {
-        const doc = await transaction.get(ref)
-        if (!doc.exists) {
-          transaction.set(ref, { tag: ref.id, count: 1 })
-        } else {
-          const newCount = doc.data().count + 1
-          transaction.update(ref, { count: newCount })
-        }
-      }))
+  const batchWriteTags = (tagSet, collectionName) => {
+    const batch = db.batch()
+    const collection = db.collection(collectionName)
+    Object.keys(tagSet).forEach(tag => {
+      batch.set(collection.doc(tag), { tag })
     })
+    return batch.commit()
+  }
 
   return {
     createGame(game) {
@@ -71,7 +66,7 @@ function addDispatchers(connector, db, user) {
         return docRef
       })
       .then(docRef => connector.props.history.push(`games/${docRef.id}`))
-      .then(() => runTagsTransaction(autoTags, 'tagsInGames'))
+      .then(() => batchWriteTags(autoTags, 'tagsInGames'))
       .catch(err => console.error('Error creating game', err))
     },
     writeQuestion(question) {
@@ -94,7 +89,7 @@ function addDispatchers(connector, db, user) {
         createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
       }
       db.collection('questions').add(questionObj)
-      .then(() => runTagsTransaction(allTags, 'tagsInQuestions'))
+      .then(() => batchWriteTags(allTags, 'tagsInQuestions'))
       .catch(err => console.error('Error writing question', err))
     },
   }
