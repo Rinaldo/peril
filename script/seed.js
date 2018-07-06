@@ -3,20 +3,9 @@ const gameToSeed = require('./stackpardy.json')
 const firebase = require('firebase')
 require('firebase/firestore')
 
-const config = {
-  apiKey: 'AIzaSyAihYdLAeDX7ZqW72avjItnmcuFQdntZN0',
-  authDomain: 'peril-game.firebaseapp.com',
-  databaseURL: 'https://peril-game.firebaseio.com',
-  projectId: 'peril-game',
-  storageBucket: 'peril-game.appspot.com',
-  messagingSenderId: '7645117184'
-}
-firebase.initializeApp(config)
+const { username, password } = require('./secrets')
 
-const db = firebase.firestore()
-db.settings({ timestampsInSnapshots: true })
-
-// copied from utils
+//copied from utils
 const formatGame = game => {
   const formatted = {...game}
   delete formatted.categories
@@ -38,59 +27,139 @@ const formatGame = game => {
   return formatted
 }
 
-const createValidWordSet = (string, wordSet = {}) => {
-  const newWordSet = { ...wordSet }
-  const spacesAndPunctuation = /((^('|"|\(|`| )+)|(,|\.|;|:|\?|!|'|"|\)|`| )+$)/g
-  string.split(' ').map(word => word.toLowerCase().replace(spacesAndPunctuation, '')).forEach(word => {
-    if (word.length && word.search(/[^a-zA-Z0-9'-]/) === -1) newWordSet[word] = true
-  })
-  return newWordSet
+const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "it's", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
+
+const removeInterrogatives = phrase => phrase.replace(/^(\s*(who|what|when|where|why|how)\s+(is|are)\s+)|\?+\s*$/gi, '')
+
+const preprocessWord = word => {
+  const spacesAndPunctuationAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$/g
+  return word.toLowerCase().replace(spacesAndPunctuationAtEnds, '')
 }
 
-const stringsToWordSet = (...strings) => strings.reduce((prev, curr) => createValidWordSet(curr, prev), {})
+const containsInvalidCharacters = (string, returnIndex) => {
+  // disallow __stuff__ and / per firestore, disallow ~ * [ per query, disallow other weirdness per me
+  const stuffIDontWant = /(__.*__)|([^a-zA-Z\u00C0-\u017F0-9 @#$%^&<>`'",;:?!_-])|(^[@#$%^&<>`'",;:?!_-]+$)/
+  return returnIndex ? string.search(stuffIDontWant) : string.search(stuffIDontWant) !== -1
+}
+
+const mergeTagSets = (...tagSet) => {
+  const merged = {}
+  tagSet.forEach(set => {
+    Object.keys(set).forEach(word => {
+      merged[word] = true
+    })
+  })
+  return merged
+}
+
+const wordsToTags = (words, wordMap = {}, minLength = 1, stopWordsSet = new Set()) =>
+  words.reduce((map, currentWord) => {
+    const trimmedWord = preprocessWord(currentWord)
+    if (trimmedWord.length >= minLength && !containsInvalidCharacters(trimmedWord) && !stopWordsSet.has(trimmedWord)) {
+      map[trimmedWord] = true
+    }
+  return map
+  }, wordMap)
+
+const addPhraseToTags = (phrase, tags) => {
+  // add entire phrase if valid or the beginning of the phrase if the phrase contains invalid characters
+  phrase = phrase.toLowerCase()
+  // slice off ending period (which is invalid)
+  if (phrase[phrase.length - 1] === '.') {
+    phrase = phrase.slice(0, -1)
+  }
+  const invalidIndex = containsInvalidCharacters(phrase, 'index')
+  // if entirely valid
+  if (invalidIndex === -1) {
+    tags[phrase] = true
+    return tags
+  }
+  // will make phrase valid
+  phrase = phrase.slice(0, invalidIndex).trim()
+  // add ellipses to show that there is more to the phrase
+  if (phrase.includes(' ')) phrase = phrase + '…'
+  tags[phrase] = true
+
+  return tags
+}
+
+const createQuestionAutoTags = (prompt, response) => {
+  const tags = {}
+  // add individual words to tags
+  wordsToTags(prompt.split(' '), tags, 2, myStopWords)
+  wordsToTags(response.split(' '), tags, 2, myStopWords)
+
+  // add response with 'what is' and '?' removed if valid and quotes and stuff removed if it's a single word
+  // also add response with beginning 'the' removed
+  let answer = removeInterrogatives(response.toLowerCase())
+  if (!answer.includes(' ')) answer = preprocessWord(answer)
+  if (!containsInvalidCharacters(answer)) tags[answer] = true
+  const answerWithoutThe = answer.startsWith('the ') ? answer.slice(4) : answer
+  tags[answerWithoutThe] = true
+
+  addPhraseToTags(prompt, tags)
+
+  return tags
+}
+
+const parseUserTags = tagString => wordsToTags(tagString.split(','))
 
 
-const addQuestions = (user) => {
+const config = {
+  apiKey: 'AIzaSyAihYdLAeDX7ZqW72avjItnmcuFQdntZN0',
+  authDomain: 'peril-game.firebaseapp.com',
+  databaseURL: 'https://peril-game.firebaseio.com',
+  projectId: 'peril-game',
+  storageBucket: 'peril-game.appspot.com',
+  messagingSenderId: '7645117184'
+}
+firebase.initializeApp(config)
+
+const db = firebase.firestore()
+db.settings({ timestampsInSnapshots: true })
+
+const runTagsTransaction = (tagSet, collectionName) =>
+    db.runTransaction(transaction => {
+      const refs = Object.keys(tagSet).map(word => db.collection(collectionName).doc(word))
+      return Promise.all(refs.map(async ref => {
+        const doc = await transaction.get(ref)
+        if (!doc.exists) {
+          transaction.set(ref, { tag: ref.id, count: 1 })
+        } else {
+          const newCount = doc.data().count + 1
+          transaction.update(ref, { count: newCount })
+        }
+      }))
+    })
+
+const addQuestions = async user => {
+  let seededCount = 0
   const rows = formatGame(gameToSeed).rows
-  const promises = []
   for (let row of rows) {
     for (let question of row) {
-      const wordSet = stringsToWordSet(question.prompt, question.response)
+      const { prompt, response } = question
+      const autoTags = createQuestionAutoTags(prompt, response)
       const questionObj = {
+        prompt,
+        response,
         isPublic: true,
-        prompt: question.prompt,
-        response: question.response,
         author: {
           name: user.displayName,
           uid: user.uid,
         },
-        autoTags: wordSet,
+        allTags: autoTags,
+        gameCount: 0,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       }
       if (question.double) questionObj.double = true
-      promises.push(
-        db.collection('questions').add(questionObj)
-        .then(() =>
-          db.runTransaction(transaction => {
-            const refs = Object.keys(wordSet).map(word => db.collection('wordsInQuestions').doc(word))
-            return Promise.all(refs.map(async ref => {
-              const doc = await transaction.get(ref)
-              if (!doc.exists) {
-                transaction.set(ref, { count: 1 })
-              } else {
-                const newCount = doc.data().count + 1
-                transaction.update(ref, { count: newCount })
-              }
-            }))
-          })
-        )
-      )
+      await db.collection('questions').add(questionObj)
+      runTagsTransaction(autoTags, 'tagsInQuestions')
+      console.log(`Seeded ${++seededCount} questions successfully`)
     }
   }
-  return Promise.all(promises)
 }
 
-firebase.auth().signInWithEmailAndPassword('', '')
+firebase.auth().signInWithEmailAndPassword(username, password)
 .then(userCredential => {
   return addQuestions(userCredential.user)
   .catch(err => console.log('Error adding questions', err))
