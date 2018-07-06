@@ -102,8 +102,6 @@ const createQuestionAutoTags = (prompt, response) => {
   return tags
 }
 
-const parseUserTags = tagString => wordsToTags(tagString.split(','))
-
 
 const config = {
   apiKey: 'AIzaSyAihYdLAeDX7ZqW72avjItnmcuFQdntZN0',
@@ -118,22 +116,17 @@ firebase.initializeApp(config)
 const db = firebase.firestore()
 db.settings({ timestampsInSnapshots: true })
 
-const runTagsTransaction = (tagSet, collectionName) =>
-    db.runTransaction(transaction => {
-      const refs = Object.keys(tagSet).map(word => db.collection(collectionName).doc(word))
-      return Promise.all(refs.map(async ref => {
-        const doc = await transaction.get(ref)
-        if (!doc.exists) {
-          transaction.set(ref, { tag: ref.id, count: 1 })
-        } else {
-          const newCount = doc.data().count + 1
-          transaction.update(ref, { count: newCount })
-        }
-      }))
-    })
+const batchWriteTags = (tagSet, collectionName) => {
+  const batch = db.batch()
+  const collection = db.collection(collectionName)
+  Object.keys(tagSet).forEach(tag => {
+    batch.set(collection.doc(tag), { tag })
+  })
+  return batch.commit()
+}
 
-const addQuestions = async user => {
-  let seededCount = 0
+const addQuestions = user => {
+  const promises = []
   const rows = formatGame(gameToSeed).rows
   for (let row of rows) {
     for (let question of row) {
@@ -152,17 +145,36 @@ const addQuestions = async user => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       }
       if (question.double) questionObj.double = true
-      await db.collection('questions').add(questionObj)
-      runTagsTransaction(autoTags, 'tagsInQuestions')
-      console.log(`Seeded ${++seededCount} questions successfully`)
+      promises.push(
+        db.collection('questions').add(questionObj)
+        .then(() => batchWriteTags(autoTags, 'tagsInQuestions'))
+      )
     }
   }
+  return Promise.all(promises)
 }
 
+
+console.log('signing in...')
 firebase.auth().signInWithEmailAndPassword(username, password)
 .then(userCredential => {
+  console.log('signed in')
+  console.log('seeding questions')
   return addQuestions(userCredential.user)
-  .catch(err => console.log('Error adding questions', err))
-  .then(() => console.log('Done'))
+  .then(resolvedPromises => {
+    console.log(`seeded ${resolvedPromises.length} questions`)
+    console.log('Done')
+    return 0
+  })
+  .catch(err => {
+    console.error('Error adding questions', err)
+    return 1
+  })
 })
-.catch(err => console.log('Error signing in', err))
+.catch(err => {
+  console.log('Error signing in', err)
+  return 1
+})
+.then(code => {
+  process.exit(code)
+})
