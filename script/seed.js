@@ -27,7 +27,7 @@ const formatGame = game => {
   return formatted
 }
 
-const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "it's", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
+const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
 
 const removeInterrogatives = phrase => phrase.replace(/^(\s*(who|what|when|where|why|how)\s+(is|are)\s+)|\?+\s*$/gi, '')
 
@@ -58,6 +58,8 @@ const addPhraseToTags = (phrase, tags) => {
   if (phrase[phrase.length - 1] === '.') {
     phrase = phrase.slice(0, -1)
   }
+  // don't add empty string as tag
+  if (!phrase) return tags
   const invalidIndex = containsInvalidCharacters(phrase, 'index')
   // if entirely valid
   if (invalidIndex === -1) {
@@ -66,6 +68,8 @@ const addPhraseToTags = (phrase, tags) => {
   }
   // will make phrase valid
   phrase = phrase.slice(0, invalidIndex).trim()
+  // don't add empty string as tag
+  if (!phrase) return tags
   // add ellipses to show that there is more to the phrase
   if (phrase.includes(' ')) phrase = phrase + '…'
   tags[phrase] = true
@@ -83,9 +87,9 @@ const createQuestionAutoTags = (prompt, response) => {
   // also add response with beginning 'the' removed
   let answer = removeInterrogatives(response.toLowerCase())
   if (!answer.includes(' ')) answer = preprocessWord(answer)
-  if (!containsInvalidCharacters(answer)) tags[answer] = true
+  if (answer && !containsInvalidCharacters(answer)) tags[answer] = true
   const answerWithoutThe = answer.startsWith('the ') ? answer.slice(4) : answer
-  tags[answerWithoutThe] = true
+  if (answer) tags[answerWithoutThe] = true
 
   addPhraseToTags(prompt, tags)
 

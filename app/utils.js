@@ -138,6 +138,8 @@ const addPhraseToTags = (phrase, tags) => {
   if (phrase[phrase.length - 1] === '.') {
     phrase = phrase.slice(0, -1)
   }
+  // don't add empty string as tag
+  if (!phrase) return tags
   const invalidIndex = containsInvalidCharacters(phrase, 'index')
   // if entirely valid
   if (invalidIndex === -1) {
@@ -146,6 +148,8 @@ const addPhraseToTags = (phrase, tags) => {
   }
   // will make phrase valid
   phrase = phrase.slice(0, invalidIndex).trim()
+  // don't add empty string as tag
+  if (!phrase) return tags
   // add ellipses to show that there is more to the phrase
   if (phrase.includes(' ')) phrase = phrase + '…'
   tags[phrase] = true
@@ -163,9 +167,9 @@ export const createQuestionAutoTags = (prompt, response) => {
   // also add response with beginning 'the' removed
   let answer = removeInterrogatives(response.toLowerCase())
   if (!answer.includes(' ')) answer = preprocessWord(answer)
-  if (!containsInvalidCharacters(answer)) tags[answer] = true
+  if (answer && !containsInvalidCharacters(answer)) tags[answer] = true
   const answerWithoutThe = answer.startsWith('the ') ? answer.slice(4) : answer
-  tags[answerWithoutThe] = true
+  if (answer) tags[answerWithoutThe] = true
 
   addPhraseToTags(prompt, tags)
 
@@ -179,7 +183,7 @@ export const createGameAutoTags = (title, description) => {
   wordsToTags(description.split(' '), tags, 2, myStopWords)
 
   title = title.toLowerCase()
-  if (!containsInvalidCharacters(title)) tags[title] = true
+  if (title && !containsInvalidCharacters(title)) tags[title] = true
 
   addPhraseToTags(description, tags)
 

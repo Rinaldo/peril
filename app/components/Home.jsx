@@ -45,7 +45,7 @@ function addDispatchers(connector, db, user) {
     createGame(game) {
       const { title, description, isPublic, width, height, multiplier } = game
       const autoTags = createGameAutoTags(title, description)
-      db.collection('gameTemplates').add({
+      const gameTemplateObj = {
         title,
         description,
         isPublic,
@@ -56,7 +56,8 @@ function addDispatchers(connector, db, user) {
         allTags: autoTags,
         playCount: 0,
         createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
-      })
+      }
+      db.collection('gameTemplates').add(gameTemplateObj)
       .then(docRef => {
         docRef.collection('gameInfo').doc('info').set({
           width,
