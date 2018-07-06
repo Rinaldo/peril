@@ -45,12 +45,14 @@ class Questions extends Component {
     })
   }
   handleSearchChange(e, { searchQuery }) {
+    if (searchQuery.length < 2 && this.props.suggestionsLoaded) {
+      this.props.resetSuggestionsLoaded()
+    }
     this.setState(prevState => {
-      const changes = { searchQuery }
       if (prevState.searchQuery.length < 2 && searchQuery.length === 2) {
         this.props.getSearchSuggestions(searchQuery)
       }
-      return changes
+      return { searchQuery }
     })
   }
   render() {
@@ -78,6 +80,7 @@ class Questions extends Component {
             closeOnChange
             minCharacters={2}
             placeholder="Search Questions..."
+            noResultsMessage={this.props.suggestionsLoaded ? 'No results found' : 'Loading...'}
             options={this.props.options}
             onChange={this.handleChange}
             search={this.dropdownSearch}
@@ -138,8 +141,11 @@ const addDispatchers = (connector, db) => {
           connector.optionsHelper[doc.data().tag] = true
         })
         const options = Object.keys(connector.optionsHelper).sort().map(tag => ({ key: tag, value: tag, text: tag }))
-        connector.setState({ options })
+        connector.setState({ options, suggestionsLoaded: true })
       })
+    },
+    resetSuggestionsLoaded() {
+      connector.setState({ suggestionsLoaded: false })
     },
     searchQuestions(tags) {
       if (tags.length) {
