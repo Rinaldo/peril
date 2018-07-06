@@ -7,7 +7,7 @@ import Question from './Question'
 import GameCreationModal from './GameCreationModal'
 import QuestionInputModal from './QuestionInputModal'
 
-import { stringsToWordSet } from '../utils'
+import { createQuestionAutoTags, createGameAutoTags, parseUserTags, mergeTagSets } from '../utils'
 
 const Home = props => {
   // console.log('home props', props)
@@ -31,10 +31,25 @@ const Home = props => {
 }
 
 function addDispatchers(connector, db, user) {
+
+  const runTagsTransaction = (tagSet, collectionName) =>
+    db.runTransaction(transaction => {
+      const refs = Object.keys(tagSet).map(word => db.collection(collectionName).doc(word))
+      return Promise.all(refs.map(async ref => {
+        const doc = await transaction.get(ref)
+        if (!doc.exists) {
+          transaction.set(ref, { tag: ref.id, count: 1 })
+        } else {
+          const newCount = doc.data().count + 1
+          transaction.update(ref, { count: newCount })
+        }
+      }))
+    })
+
   return {
     createGame(game) {
       const { title, description, isPublic, width, height, multiplier } = game
-      const wordSet = stringsToWordSet(title, description)
+      const autoTags = createGameAutoTags(title, description)
       db.collection('gameTemplates').add({
         title,
         description,
@@ -43,7 +58,8 @@ function addDispatchers(connector, db, user) {
           name: user.displayName,
           uid: user.uid
         },
-        autoTags: wordSet,
+        allTags: autoTags,
+        playCount: 0,
         createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
       })
       .then(docRef => {
@@ -55,48 +71,30 @@ function addDispatchers(connector, db, user) {
         return docRef
       })
       .then(docRef => connector.props.history.push(`games/${docRef.id}`))
-      .then(() =>
-        db.runTransaction(transaction => {
-          const refs = Object.keys(wordSet).map(word => db.collection('wordsInGames').doc(word))
-          return Promise.all(refs.map(async ref => {
-            const doc = await transaction.get(ref)
-            if (!doc.exists) {
-              transaction.set(ref, { count: 1 })
-            } else {
-              const newCount = doc.data().count + 1
-              transaction.update(ref, { count: newCount })
-            }
-          }))
-        })
-      )
+      .then(() => runTagsTransaction(autoTags, 'tagsInGames'))
       .catch(err => console.error('Error creating game', err))
     },
     writeQuestion(question) {
       console.log('​writeQuestion -> question', question);
-      const wordSet = stringsToWordSet(question.prompt, question.response)
-      db.collection('questions').add({
-          ...question,
-          author: {
-            name: user.displayName,
-            uid: user.uid,
-          },
-          autoTags: wordSet,
-          createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
-      })
-      .then(() =>
-        db.runTransaction(transaction => {
-          const refs = Object.keys(wordSet).map(word => db.collection('wordsInQuestions').doc(word))
-          return Promise.all(refs.map(async ref => {
-            const doc = await transaction.get(ref)
-            if (!doc.exists) {
-              transaction.set(ref, { count: 1 })
-            } else {
-              const newCount = doc.data().count + 1
-              transaction.update(ref, { count: newCount })
-            }
-          }))
-        })
-      )
+      const { prompt, response, tags, isPublic } = question
+      const autoTags = createQuestionAutoTags(prompt, response)
+      const userTags = tags ? parseUserTags(tags) : null
+      const allTags = userTags ? mergeTagSets(autoTags, userTags) : autoTags
+      const questionObj = {
+        prompt,
+        response,
+        isPublic,
+        author: {
+          name: user.displayName,
+          uid: user.uid,
+        },
+        allTags,
+        userTags,
+        gameCount: 0,
+        createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
+      }
+      db.collection('questions').add(questionObj)
+      .then(() => runTagsTransaction(allTags, 'tagsInQuestions'))
       .catch(err => console.error('Error writing question', err))
     },
   }

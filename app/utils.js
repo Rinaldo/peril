@@ -91,31 +91,106 @@ export const signupFields = [
   }
 ]
 
-export const createValidWordSet = (string, wordSet = {}) => {
-  const spacesAndPunctuation = /^['"(`\n\r ]+|[,.;:?!'")`\n\r ]+$/g
-  // disallow __stuff__ and / per firestore, disallow ~ * [ per query, disallow other weirdness per me
-  const stuffIDontWant = /(__.*__)|([^a-zA-Z\u00C0-\u017F0-9@#$%^&<>`'",;:?!_-])|(^[@#$%^&<>`'",;:?!_-]+$)/
-  return string.split(' ').reduce((newWordSet, currentWord) => {
-    const trimmedWord = currentWord.toLowerCase().replace(spacesAndPunctuation, '')
-    if (trimmedWord.length > 1 && trimmedWord.search(stuffIDontWant) === -1) {
-      newWordSet[trimmedWord] = true
-    }
-  return newWordSet
-  }, { ...wordSet })
+const myStopWords = new Set(["a", "about", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "has", "he", "how", "in", "is", "it", "its", "it's", "of", "on", "or", "she", "that", "the", "they", "this", "to", "was", "were", "what", "when", "who", "with", "you"])
+
+const removeInterrogatives = phrase => phrase.replace(/^(\s*(who|what|when|where|why|how)\s+(is|are)\s+)|\?+\s*$/gi, '')
+
+const preprocessWord = word => {
+  const spacesAndPunctuationAtEnds = /^['"(`\s]+|[,.;:?!'")`\s]+$/g
+  return word.toLowerCase().replace(spacesAndPunctuationAtEnds, '')
 }
 
-export const stringsToWordSet = (...strings) => strings.reduce((prev, curr) => createValidWordSet(curr, prev), {})
+const containsInvalidCharacters = (string, returnIndex) => {
+  // disallow __stuff__ and / per firestore, disallow ~ * [ per query, disallow other weirdness per me
+  const stuffIDontWant = /(__.*__)|([^a-zA-Z\u00C0-\u017F0-9 @#$%^&<>`'",;:?!_-])|(^[@#$%^&<>`'",;:?!_-]+$)/
+  return returnIndex ? string.search(stuffIDontWant) : string.search(stuffIDontWant) !== -1
+}
 
+export const mergeTagSets = (...tagSet) => {
+  const merged = {}
+  tagSet.forEach(set => {
+    Object.keys(set).forEach(word => {
+      merged[word] = true
+    })
+  })
+  return merged
+}
 
-// // may add stopwords later if common words cause problems with transactions
-// const largeStopWords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "just", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "now", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "s", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "t", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "will", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]
+const wordsToTags = (words, wordMap = {}, minLength = 1, stopWordsSet = new Set()) =>
+  words.reduce((map, currentWord) => {
+    const trimmedWord = preprocessWord(currentWord)
+    if (trimmedWord.length >= minLength && !containsInvalidCharacters(trimmedWord) && !stopWordsSet.has(trimmedWord)) {
+      map[trimmedWord] = true
+    }
+  return map
+  }, wordMap)
 
-// const myStopWords = ["a", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "but", "by", "did", "do", "does", "doesn't", "for", "from", "had", "hadn't", "has", "hasn't", "have", "haven't", "he", "he'd", "he'll", "he's", "her", "hers", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "is", "isn't", "it", "it's", "its", "me", "my", "no", "not", "of", "off", "on", "or", "she", "she'd", "she'll", "she's", "so", "that", "the", "to", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "why", "why's", "with", "you"]
+const addPhraseToTags = (phrase, tags) => {
+  // add entire phrase if valid or the beginning of the phrase if the phrase contains invalid characters
+  phrase = phrase.toLowerCase()
+  // slice off ending period (which is invalid)
+  if (phrase[phrase.length - 1] === '.') {
+    phrase = phrase.slice(0, -1)
+  }
+  const invalidIndex = containsInvalidCharacters(phrase, 'index')
+  // if entirely valid
+  if (invalidIndex === -1) {
+    tags[phrase] = true
+    return tags
+  }
+  // will make phrase valid
+  phrase = phrase.slice(0, invalidIndex).trim()
+  // add ellipses to show that there is more to the phrase
+  if (phrase.includes(' ')) phrase = phrase + '…'
+  tags[phrase] = true
 
-// const googleStopWords = ["a", "about", "an", "are", "as", "at", "be", "by", "com", "for", "from", "how", "i", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "was", "what", "when", "where", "who", "will", "with", "the", "www"]
+  return tags
+}
 
-// const reutersStopWords = ["a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "he", "in", "is", "it", "its", "of", "on", "that", "the", "to", "was", "were", "will", "with"]
+export const createQuestionAutoTags = (prompt, response) => {
+  const tags = {}
+  // add individual words to tags
+  wordsToTags(prompt.split(' '), tags, 2, myStopWords)
+  wordsToTags(response.split(' '), tags, 2, myStopWords)
 
-// const hundredMostCommonWords = ["I", "a", "about", "all", "an", "and", "are", "as", "at", "be", "been", "but", "by", "call", "can", "come", "could", "day", "did", "do", "down", "each", "find", "first", "for", "from", "get", "go", "had", "has", "have", "he", "her", "him", "his", "how", "if", "in", "into", "is", "it", "its", "like", "long", "look", "made", "make", "many", "may", "more", "my", "no", "not", "now", "number", "of", "oil", "on", "one", "or", "other", "out", "part", "people", "said", "see", "she", "so", "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "time", "to", "two", "up", "use", "was", "water", "way", "we", "were", "what", "when", "which", "who", "will", "with", "word", "would", "write", "you", "your"]
+  // add response with 'what is' and '?' removed if valid and quotes and stuff removed if it's a single word
+  // also add response with beginning 'the' removed
+  let answer = removeInterrogatives(response.toLowerCase())
+  if (!answer.includes(' ')) answer = preprocessWord(answer)
+  if (!containsInvalidCharacters(answer)) tags[answer] = true
+  const answerWithoutThe = answer.startsWith('the ') ? answer.slice(4) : answer
+  tags[answerWithoutThe] = true
 
-// const twentyMostCommon = ["the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "i"]
+  addPhraseToTags(prompt, tags)
+
+  return tags
+}
+
+export const createGameAutoTags = (title, description) => {
+  const tags = {}
+  // add individual words to tags
+  wordsToTags(title.split(' '), tags, 2, myStopWords)
+  wordsToTags(description.split(' '), tags, 2, myStopWords)
+
+  title = title.toLowerCase()
+  if (!containsInvalidCharacters(title)) tags[title] = true
+
+  addPhraseToTags(description, tags)
+
+  return tags
+}
+
+export const parseUserTags = tagString => wordsToTags(tagString.split(','))
+
+const nextLetter = letter => String.fromCodePoint(letter.codePointAt(0) + 1)
+
+export const prefixLimiter = prefix => {
+  const firstLetter = prefix[0]
+  const lastLetter = prefix[prefix.length - 1]
+  const everythingButLastLetter = prefix.slice(0, -1)
+  if (lastLetter === 'z' || lastLetter === ' ') {
+    return firstLetter === 'z' ? 'z' : nextLetter(firstLetter)
+  } else {
+    return everythingButLastLetter + nextLetter(lastLetter)
+  }
+}
