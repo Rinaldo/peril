@@ -47,7 +47,7 @@ function collectDrag(connect) {
 const BoardCellDragAndDroppable = ({ connectDropTarget, connectDragSource, ...propsToPass }) => {
   return connectDragSource(connectDropTarget(
     <div>
-      {propsToPass.cell ? <BoardCell {...propsToPass} /> : <BoardCellModal initialState={{ isPublic: true }} {...propsToPass} />}
+      {propsToPass.cell.empty ? <BoardCellModal initialState={{ isPublic: true }} {...propsToPass} /> : <BoardCell {...propsToPass} />}
     </div>
   ))
 }

@@ -9,7 +9,7 @@ const SelectedEdit = ({ question, valid, children }) => {
     <Segment attached>
     {
       // hovering over or selected an existing question
-      (question) ?
+      (question && !question.empty) ?
         <Item.Group>
           <Question question={question}>
             {children}
