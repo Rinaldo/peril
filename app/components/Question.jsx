@@ -14,9 +14,9 @@ const Question = ({ question, children }) => {
           <p style={{ paddingLeft: '0.4em' }}>{question.response}</p>
         </div>
         <Item.Extra>
-          {/* {question.tags && Object.keys(question.tags).map(tag => (
+          {question.tags && Object.keys(question.tags).map(tag => (
             <Label key={tag}>{tag}</Label>
-          ))} */}
+          ))}
           By {question.author && question.author.name}
           {children}
         </Item.Extra>

@@ -18,7 +18,7 @@ class QuestionInputModal extends Component {
   }
 
   handleSubmit() {
-    const { modalOpen, ...formState } = this.state
+    const { modalOpen, ...formState } = this.state // eslint-disable-line no-unused-vars
     this.setState({ modalOpen: false })
     this.props.writeQuestion(formState)
   }
