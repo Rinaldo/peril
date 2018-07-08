@@ -18,6 +18,30 @@ class Questions extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleSearchChange = this.handleSearchChange.bind(this)
     this.dropdownSearch = this.dropdownSearch.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.handleLabelClick = this.handleLabelClick.bind(this)
+  }
+  handleLabelClick(evt, data) {
+  console.log('​Questions -> handleLabelClick -> data', data);
+
+  }
+  handleKeyDown(event) {
+    event.stopPropagation()
+    if (event.key === 'Backspace') {
+      console.log('​Questions -> handleKeyDown -> event.key', event.key);
+      this.setState(prevState => {
+        if (prevState.value.length && !prevState.searchQuery.length) {
+          const slicedValue = prevState.value.slice(0, -1)
+          this.props.searchQuestions(slicedValue)
+          return {
+            value: slicedValue,
+            searchQuery: prevState.value[prevState.value.length - 1]
+          }
+        } else {
+          return null
+        }
+      })
+    }
   }
   dropdownSearch(options, query) {
     return options.filter(option => option.text.startsWith(query))
@@ -30,6 +54,7 @@ class Questions extends Component {
       )
   }
   handleChange(e, { searchQuery, value }) { // eslint-disable-line no-unused-vars
+    console.log('​handleChange -> value', value);
     this.props.searchQuestions(value)
     this.setState(prevState => {
       const changes = { searchQuery: '', value }
@@ -72,6 +97,8 @@ class Questions extends Component {
         </Menu>
         <Segment attached style={{ padding: 0 }}>
           <Dropdown
+            onKeyDown={this.handleKeyDown}
+            onLabelClick={this.handleLabelClick}
             style={{ border: 'none' }}
             deburr
             fluid
