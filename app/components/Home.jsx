@@ -1,9 +1,8 @@
 import React from 'react'
 import { firestoreConnect } from 'fire-connect'
 
-import MyGames from './MyGames'
+import GameList from './GameList'
 import QuestionList from './QuestionList'
-import Question from './Question'
 import GameCreationModal from './GameCreationModal'
 import QuestionInputModal from './QuestionInputModal'
 
@@ -16,14 +15,14 @@ const Home = props => {
     <div style={{ height: '100%', display: 'flex' }}>
       <div style={{ height: '92%', width: '50%', padding: '2%' }}>
         <GameCreationModal createGame={props.createGame} />
-        <MyGames history={props.history} />
+        <GameList />
       </div>
       <div style={{ height: '92%', width: '50%', padding: '2%' }}>
-        <QuestionInputModal writeQuestion={props.writeQuestion} initialState={{ isPublic: true }} />
-        <QuestionList questionItem={
-            question => <Question key={question.docId} question={question} />
-          }
+        <QuestionInputModal
+          writeQuestion={props.writeQuestion}
+          initialState={{ isPublic: true }}
         />
+        <QuestionList />
       </div>
     </div>
   </div>

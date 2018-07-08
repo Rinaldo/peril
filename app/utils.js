@@ -204,3 +204,6 @@ export const prefixLimiter = prefix => {
     return everythingButLastLetter + nextLetter(lastLetter)
   }
 }
+// https://stackoverflow.com/questions/15369566/putting-space-in-camel-case-string-using-regular-expression
+export const camelCaseToTitleCase = string =>
+  (string[0].toUpperCase() + string.slice(1)).replace(/([A-Z])([A-Z])([a-z])|([a-z])([A-Z])/g, '$1$4 $2$3$5')
