@@ -39,7 +39,8 @@ export const createSearchableItemDispatchers = itemTypeOptions =>
       },
       searchDbForItems(tags) {
         if (tags.length) {
-          const query = tags.reduce((prev, curr) => prev.where(`allTags.${curr}`, '==', true), db.collection(itemTypeOptions.collectionName))
+          console.log('​searchDbForItems -> itemTypeOptions.collectionName', itemTypeOptions.collectionName);
+          const query = tags.reduce((prev, curr) => prev.where(`allTags.${curr}`, '==', true), db.collection(itemTypeOptions.collectionName).where('isPublic', '==', true))
           query.get()
           .then(queryResult => {
             const searchResults = queryResult.docs.map(doc => ({ docId: doc.id, ...doc.data() }))
