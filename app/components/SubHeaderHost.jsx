@@ -8,7 +8,7 @@ const SubHeader = props => {
     <Segment attached clearing>
       <p>{props.title}</p>
       <p>{props.description}</p>
-      <p>Players can join at <a href={`${window.location.host}/play/${props.user.uid}`}>{`${window.location.host}/play/${props.user.uid}`}</a></p>
+      <p>Players can join at <a href={`${window.location.origin}/play/${props.user.uid}`}>{`${window.location.origin}/play/${props.user.uid}`}</a></p>
       {!props.started && <Checkbox label="Allow players to join after game has started" onClick={props.allowLatePlayers} />}
       {!props.started && <Button floated="right" onClick={props.startGame}>Start Game</Button>}
     </Segment>
