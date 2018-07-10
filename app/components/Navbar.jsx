@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 import { authConnect, firebaseConnect } from 'fire-connect'
 import { googleProvider } from '../firebase'
-import { loginFields, signupFields } from '../utils'
 
 import AuthDropdown from './AuthDropdown'
 
@@ -17,10 +16,10 @@ const HostNavbar = ({ user, logOut, emailSignup, emailLogin, ...propsToPass }) =
       {!user ?
       <>
         <Menu.Item style={{ padding: 0 }}>
-          <AuthDropdown method="Sign up" submit={emailSignup} formFields={signupFields} {...propsToPass} />
+          <AuthDropdown method="Sign up" submit={emailSignup} {...propsToPass} />
         </Menu.Item>
         <Menu.Item style={{ padding: 0 }}>
-          <AuthDropdown method="Log in" submit={emailLogin} formFields={loginFields} {...propsToPass} />
+          <AuthDropdown method="Log in" submit={emailLogin} {...propsToPass} />
         </Menu.Item>
       </>
       :
@@ -46,12 +45,12 @@ const addHostDispatchers = (connector, auth) => ({
     .catch(err => console.error('Sign up or sign in error:', err))
   },
 
-  emailLogin(email, password) {
+  emailLogin({ email, password }) {
     auth.signInWithEmailAndPassword(email, password)
     .catch(err => console.error('Sign up or sign in error:', err))
   },
 
-  emailSignup(email, password, name) {
+  emailSignup({ email, password, name }) {
     auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => Promise.all([userCredential.user, userCredential.user.updateProfile({ displayName: name })]))
     .then(([user]) => user.getIdToken(true))

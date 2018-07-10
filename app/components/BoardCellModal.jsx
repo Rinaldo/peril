@@ -1,31 +1,40 @@
 import React, { Component } from 'react'
-import { Modal, Form, Button } from 'semantic-ui-react'
+import { Modal, Button } from 'semantic-ui-react'
 
 import BoardCell from './BoardCell'
+import NewQuestionFields from './NewQuestionFields'
 
-
+/*
+ * Very similar to QuestionInputModal
+*/
 class BoardCellModal extends Component {
+
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
     this.state = this.props.initialState ? { modalOpen: false, ...this.props.initialState } : { modalOpen: false }
   }
 
-  handleChange(_, { name, value, checked }) {
-    this.setState({ [name]: value === undefined ? checked : value })
+  handleChange(_, { name, value, checked, type }) {
+    if (value === undefined) value = checked
+    else if (value && type === 'number') value = +value
+    this.setState({ [name]: value })
   }
 
-  handleSubmit() {
-    const { modalOpen, ...formState } = this.state
-    this.setState({ modalOpen: false })
-    this.props.writeQuestion(formState)
+  handleSubmit(event) {
+    event.preventDefault()
+    const { modalOpen, ...state } = this.state   // eslint-disable-line no-unused-vars
+    console.log('props:', this.props)
+    console.log('state:', this.state)
+    this.props.writeQuestion(state)
     .then(docRef => docRef.get())
     .then(doc => doc.data())
     .then(createdQuestion => this.props.addQuestionToGame(createdQuestion, ...this.props.currentCoords))
     .catch(err => console.error('Error adding question', err))
+    this.handleClose()
   }
 
   handleOpen() {
@@ -46,39 +55,13 @@ class BoardCellModal extends Component {
       >
         <Modal.Header>Create And Add Question To Game</Modal.Header>
         <Modal.Content>
-          <Form onSubmit={this.handleSubmit}>
-            <Form.TextArea
-              autoHeight
-              rows={2}
-              name="prompt"
-              label="Prompt"
-              placeholder="This document was famously adopted in the summer of 1776"
-              value={this.state.prompt || ''}
-              onChange={this.handleChange}
-            />
-            <Form.Input
-              name="response"
-              label="Response"
-              placeholder="What is the Declaration of Independence"
-              value={this.state.response || ''}
-              onChange={this.handleChange}
-            />
-            <Form.Input
-              name="tags"
-              label="Enter any number of tags separated by commas"
-              placeholder="American History, History"
-              value={this.state.tags || ''}
-              onChange={this.handleChange}
-            />
-            <Form.Checkbox
-              checked={this.state.isPublic}
-              name="isPublic"
-              label="Make my question public"
-              onChange={this.handleChange}
-            />
-          </Form>
+        <NewQuestionFields
+            handleChange={this.handleChange}
+            formState={this.state}
+          />
         </Modal.Content>
         <Modal.Actions>
+          <Button negative icon="close" labelPosition="right" content="Cancel" onClick={this.handleClose} />
           <Button positive icon="checkmark" labelPosition="right" content="Create Question" onClick={this.handleSubmit} />
         </Modal.Actions>
       </Modal>

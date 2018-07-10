@@ -8,6 +8,8 @@ import BoardCellDragAndDroppable from './BoardCellDragAndDroppable'
 import HeaderCellEditable from './HeaderCellEditable'
 import SelectedEdit from './SelectedEdit'
 
+import { createNewQuestionDispatcher } from '../fireConnectCommon'
+
 
 const GameInfoEdit = props => {
   return props.isLoaded ? (
@@ -76,8 +78,10 @@ function addDispatchers(component, db, user) {
     .collection('gameInfo')
     .doc('info')
   return {
+    writeQuestion(question) {
+      return createNewQuestionDispatcher(component, db, user)(question)
+    },
     addQuestionToGame(question, row, col) {
-      console.log('​addQuestionToGame -> question', row, col, question);
       const keyString = `categories.${col}.questions.${row}`
       return component.gameRef.update({
         [keyString]: question
@@ -93,27 +97,17 @@ function addDispatchers(component, db, user) {
       })
       .catch(err => console.error('Error updating questions', err))
     },
-    writeQuestion(question) {
-      return db.collection('questions').add({
-          ...question,
-          author: {
-            name: user.displayName,
-            uid: user.uid,
-          }
-      })
-      .catch(err => console.error('Error writing question', err))
-    },
-    setHeader(header, col) {
+    setHeader(col, { category }) {
       const keyString = `categories.${col}.name`
       return component.gameRef.update({
-        [keyString]: header
+        [keyString]: category
       })
       .catch(err => console.error('Error updating header', err))
     },
     removeQuestionFromGame(row, col) {
       const keyString = `categories.${col}.questions.${row}`
       return component.gameRef.update({
-        [keyString]: null
+        [keyString]: component.props.firestoreFieldValue.delete()
       })
       .catch(err => console.error('Error removing question', err))
     },

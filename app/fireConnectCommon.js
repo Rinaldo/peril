@@ -1,4 +1,4 @@
-import { prefixLimiter } from './utils'
+import { prefixLimiter, createQuestionAutoTags, createGameAutoTags, parseUserTags, mergeTagSets } from './utils'
 
 export const createSearchableItemListeners = ({ itemType, collectionName, orderTopBy }) =>
   (connector, db, user) => ({
@@ -49,4 +49,71 @@ export const createSearchableItemDispatchers = itemTypeOptions =>
         }
       }
     }
+  }
+
+export const createbatchWriteTags = (connector, db) =>
+  (tagSet, collectionName) => {
+    const batch = db.batch()
+    const collection = db.collection(collectionName)
+    Object.keys(tagSet).forEach(tag => {
+      batch.set(collection.doc(tag), { tag })
+    })
+    return batch.commit()
+  }
+
+export const createNewQuestionDispatcher = (connector, db, user) =>
+  question => {
+    const { prompt, response, tags, isPublic } = question
+    const autoTags = createQuestionAutoTags(prompt, response)
+    const userTags = tags ? parseUserTags(tags) : null
+    const allTags = userTags ? mergeTagSets(autoTags, userTags) : autoTags
+    const questionObj = {
+      prompt,
+      response,
+      isPublic,
+      author: {
+        name: user.displayName,
+        uid: user.uid,
+      },
+      allTags,
+      userTags,
+      gameCount: 0,
+      createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
+    }
+    return db.collection('questions').add(questionObj)
+    .then(docRef => {
+      createbatchWriteTags(connector, db)(allTags, 'tagsInQuestions')
+      return docRef
+    })
+    .catch(err => console.error('Error writing question', err))
+  }
+
+export const createNewGameDispatcher = (connector, db, user) =>
+  game => {
+    const { title, description, isPublic, width, height, multiplier } = game
+    const autoTags = createGameAutoTags(title, description)
+    const gameTemplateObj = {
+      title,
+      description,
+      isPublic,
+      author: {
+        name: user.displayName,
+        uid: user.uid
+      },
+      allTags: autoTags,
+      playCount: 0,
+      createdAt: connector.props.firestoreFieldValue.serverTimestamp(),
+    }
+    return db.collection('gameTemplates').add(gameTemplateObj)
+    .then(docRef => {
+      docRef.collection('gameInfo').doc('info').set({
+        width,
+        height,
+        multiplier,
+      })
+      return docRef
+    })
+    .then(docRef => connector.props.history.push(`games/${docRef.id}`))
+    .then(() => createbatchWriteTags(connector, db)(autoTags, 'tagsInGames'))
+    .catch(err => console.error('Error creating game', err))
   }

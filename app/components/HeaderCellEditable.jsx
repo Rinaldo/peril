@@ -1,30 +1,17 @@
 import React, { Component } from 'react'
-import { Popup, Form, Input } from 'semantic-ui-react'
+import { Popup } from 'semantic-ui-react'
 
+import CategoryForm from './CategoryForm'
 import HeaderCell from './HeaderCell'
-
 
 class HeaderCellEditable extends Component {
 
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.handleOpen = this.handleOpen.bind(this)
     this.handleClose = this.handleClose.bind(this)
-    this.state = {
-      category: props.header || '',
-      isOpen: false,
-    }
-  }
-
-  handleChange(_, { name, value }) {
-    this.setState({ [name]: value })
-  }
-
-  handleSubmit() {
-    this.props.setHeader(this.state.category, this.props.index)
-    this.setState({ isOpen: false })
+    this.setHeader = this.props.setHeader.bind(this, this.props.index)
+    this.state = { isOpen: false }
   }
 
   handleOpen() {
@@ -36,7 +23,6 @@ class HeaderCellEditable extends Component {
   }
 
   render() {
-    // console.log('here')
     return (
       <Popup
         trigger={
@@ -45,14 +31,11 @@ class HeaderCellEditable extends Component {
           </div>
         }
         content={
-          <Form onSubmit={this.handleSubmit}>
-            <Input
-              name="category"
-              placeholder="Enter category..."
-              value={this.state.category}
-              onChange={this.handleChange}
-            />
-          </Form>
+          <CategoryForm
+            submit={this.setHeader}
+            secondarySubmit={this.handleClose}
+            initialState={{ category: this.props.header }}
+          />
         }
         open={this.state.isOpen}
         onOpen={this.handleOpen}
