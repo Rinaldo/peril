@@ -49,6 +49,7 @@
     "build-dev": "webpack --config webpack.dev.js",
     "build-prod": "webpack --config webpack.prod.js",
     "build-watch": "npm run build-dev -- -w",
+    "deploy": "npm run build-prod && firebase deploy",
     "seed": "node script/seed.js",
     "start-dev": "webpack-dev-server --config webpack.dev.js",
     "test": "jest",
