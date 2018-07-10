@@ -59,7 +59,6 @@ class QuestionInputModal extends Component {
         <Modal.Content>
           <NewQuestionFields
             handleChange={this.handleChange}
-            handleSubmit={this.handleSubmit}
             formState={this.state}
           />
         </Modal.Content>

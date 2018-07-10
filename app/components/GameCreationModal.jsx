@@ -8,9 +8,11 @@ class QuestionInput extends Component {
 
   constructor(props) {
     super(props)
+    this.handleOpen = this.handleOpen.bind(this)
+    this.handleClose = this.handleClose.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
-    this.state = this.props.initialState
+    this.state = this.props.initialState ? { modalOpen: false, ...this.props.initialState } : { modalOpen: false }
   }
 
   handleChange(_, { name, value, checked, type }) {
@@ -20,14 +22,37 @@ class QuestionInput extends Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault()
-    this.props.createGame(this.state)
-    this.setState(this.props.initialState)
+    if (event) event.preventDefault()
+    const { modalOpen, ...state } = this.state   // eslint-disable-line no-unused-vars
+    this.props.writeQuestion(state)
+    this.setState(prevState =>
+      Object.assign({},
+        Object.keys(prevState).reduce((obj, key) => {
+          obj[key] = null
+          return obj
+        }, {}),
+        this.props.initialState,
+        { modalOpen: false }
+      )
+    )
+  }
+
+  handleOpen() {
+    this.setState({ modalOpen: true })
+  }
+
+  handleClose() {
+    this.setState({ modalOpen: false })
   }
 
   render() {
     return (
-      <Modal closeIcon trigger={<Button>Create New Game</Button>}>
+      <Modal
+        closeIcon
+        trigger={<Button onClick={this.handleOpen}>Create New Game</Button>}
+        open={this.state.modalOpen}
+        onClose={this.handleClose}
+      >
         <Modal.Header>Create New Game</Modal.Header>
         <Modal.Content>
           <NewGameFields
