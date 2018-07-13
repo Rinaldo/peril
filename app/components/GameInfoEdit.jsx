@@ -25,6 +25,7 @@ const GameInfoEdit = props => {
       )}
       renderHeader={(header, index, otherProps) => (
         <HeaderCellEditable
+          key={`row-${index}`}
           header={header}
           index={index}
           {...otherProps}

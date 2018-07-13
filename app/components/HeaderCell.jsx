@@ -1,14 +1,25 @@
 import React from 'react'
+import { Table } from 'semantic-ui-react'
 
-
-const HeaderCell = props => {
+export const HeaderCellContent = props => {
   return (
     <p
-      style={{ padding: '1em', cursor: 'default' }}
+      style={{ cursor: 'default' }}
       className={props.header ? null : 'default-color'}
     >
       {props.header || `Category ${props.index + 1}`}
     </p>
+  )
+}
+
+const HeaderCell = props => {
+  return (
+    <Table.HeaderCell>
+      <HeaderCellContent
+        header={props.header}
+        index={props.index}
+      />
+    </Table.HeaderCell>
   )
 }
 

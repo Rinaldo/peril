@@ -8,11 +8,7 @@ const Board = ({ renderCell, renderHeader, clearQuestion, game, ...propsToPass }
       <Table fixed unstackable size="large" attached>
         <Table.Header>
           <Table.Row textAlign="center">
-            {game.headers.map((header, headerIndex) => (
-              <Table.HeaderCell style={{ padding: '0px' }} key={`row-${headerIndex}`}>
-                {renderHeader(header, headerIndex, propsToPass)}
-              </Table.HeaderCell>
-            ))}
+            {game.headers.map((header, headerIndex) => renderHeader(header, headerIndex, propsToPass))}
           </Table.Row>
         </Table.Header>
         <Table.Body onMouseLeave={clearQuestion}>

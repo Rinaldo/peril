@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { Popup } from 'semantic-ui-react'
+import { Popup, Table } from 'semantic-ui-react'
 
 import CategoryForm from './CategoryForm'
-import HeaderCell from './HeaderCell'
+import { HeaderCellContent } from './HeaderCell'
 
 class HeaderCellEditable extends Component {
 
@@ -26,9 +26,13 @@ class HeaderCellEditable extends Component {
     return (
       <Popup
         trigger={
-          <div>
-            <HeaderCell {...this.props} />
-          </div>
+          // trigger cannot be a custom component, must be an html or semantic ui element
+          <Table.HeaderCell>
+            <HeaderCellContent
+              header={this.props.header}
+              index={this.props.index}
+            />
+          </Table.HeaderCell>
         }
         content={
           <CategoryForm
@@ -42,6 +46,7 @@ class HeaderCellEditable extends Component {
         onClose={this.handleClose}
         hoverable
         position="bottom center"
+        verticalOffset={-12}
       />
     )
   }

@@ -25,6 +25,7 @@ const GameHost = props => {
         )}
         renderHeader={(header, index, otherProps) => (
           <HeaderCell
+            key={`row-${index}`}
             header={header}
             index={index}
             {...otherProps}
